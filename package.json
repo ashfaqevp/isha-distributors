@@ -1,26 +1,35 @@
 {
   "name": "nuxt-app",
-  "private": true,
   "type": "module",
+  "private": true,
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "devDependencies": {
-    "@nuxt/devtools": "latest",
-    "autoprefixer": "^10.4.16",
-    "netlify-cli": "^16.8.0",
-    "nuxt": "^3.7.4",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.3",
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.5"
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "firebase": "^10.5.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "1.0.0-beta.27",
+    "@invictus.codes/nuxt-vuetify": "^0.3.0",
+    "@nuxt/devtools": "latest",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.52.0",
+    "netlify-cli": "^16.8.0",
+    "nuxt": "^3.7.4",
+    "nuxt-icon": "^0.5.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3",
+    "vite-plugin-vuetify": "^1.0.2",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5",
+    "vuetify": "3.4.0-alpha.1"
   }
 }
