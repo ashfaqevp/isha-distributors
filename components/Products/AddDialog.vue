@@ -62,9 +62,10 @@ async function addProduct() {
     v-model="isOpen"
 
     persistent
-    width="514"
+    width="420"
   >
     <v-card title="Add New Product" class="w-full">
+      <v-divider class="my-2" />
       <v-card-text>
         <v-form ref="form" class="mt-1">
           <v-text-field
@@ -72,8 +73,7 @@ async function addProduct() {
             :rules="[v => !!v || '']"
             label="Product Name"
             required
-            variant="solo"
-            density="compact"
+            variant="outlined"
           />
 
           <v-select
