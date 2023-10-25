@@ -77,7 +77,6 @@ const filterdProducts = computed(() => {
   <v-app-bar
     class="px-0"
     color="primary"
-    :density="openSearch ? 'default' : 'compact'"
   >
     <template v-if="!openSearch" #prepend>
       <v-app-bar-nav-icon class="mx-0">
@@ -149,27 +148,29 @@ const filterdProducts = computed(() => {
           v-for="(product, index) in filterdProducts"
           :key="index"
           cols="6"
+          md="4"
+          lg="3"
         >
           <v-card
             rounded="lg"
             color="grey-lighten-9"
-            height="120px"
+            height="140px"
             class="pa-4 text-center mx-1 my-1"
             elevation="1"
             @click="openEditProduct = true ; selectedProduct = product"
           >
             <div class="flex-col relative">
-              <v-avatar class="mb-3" :color="getProductIcon(product?.category).color">
+              <v-avatar size="48" class="mb-3" :color="getProductIcon(product?.category).color">
                 <Icon :name="getProductIcon(product?.category).name" size="24" color="white" />
               </v-avatar>
-              <p class="text-sm font-semibold truncate">
+              <p class="text-md font-semibold truncate">
                 {{ product?.name }}
               </p>
-              <span class="text-xs">Price : </span>
-              <span class="text-xs font-semibold text-grey-600">{{ formatAsCurrency(product?.price_a) }}</span>
+              <span class="text-sm">Price : </span>
+              <span class="text-sm font-semibold text-grey-600">{{ formatAsCurrency(product?.price_a) }}</span>
 
-              <button class="absolute -top-2 -right-2 rounded-full hover:bg-gray-100 px-1  pb-1">
-                <Icon name="icon-park-outline:more-one" size="18" />
+              <button class="absolute -top-1 -right-2 rounded-full hover:bg-gray-100 px-1  pb-1">
+                <Icon name="icon-park-outline:more-one" size="22" />
                 <v-menu activator="parent">
                   <v-list>
                     <v-list-item @click="openEditProduct = true ; selectedProduct = product">
