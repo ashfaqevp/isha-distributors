@@ -35,11 +35,6 @@ async function fetchProducts() {
   }
 }
 
-onMounted (async () => {
-  await fetchProducts()
-  // other functions
-})
-
 function getProductIcon(input) {
   switch (input) {
     case productCategories[0] :
@@ -67,8 +62,10 @@ const filterdProducts = computed(() => {
     return productList.value.filter(item => item.name.toLowerCase().includes(searchName.value.toLowerCase()))
 })
 
-// const tab = ref(null)
-// const allTabs = ['web', 'shopping', 'videos']
+onMounted (async () => {
+  await fetchProducts()
+  // other functions
+})
 </script>
 
 <!-- density="compact" -->

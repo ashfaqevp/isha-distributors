@@ -33,7 +33,7 @@ const tab = ref(null)
 const allTabs = ['Current', 'New', 'Damaged']
 
 function openAdd() {
-  console.log('add')
+  router.push({ path: '/stocks/new' })
 }
 </script>
 
@@ -77,9 +77,54 @@ function openAdd() {
       </div>
     </template>
   </v-app-bar>
+  <!-- <v-window v-model="tab">
+    <v-window-item value="Current">
+      One
+    </v-window-item>
+
+    <v-window-item value="two">
+      Two
+    </v-window-item>
+
+    <v-window-item value="three">
+      Three
+    </v-window-item>
+  </v-window> -->
+
   <!-- <div>
     jhew
   </div>
 
   {{ 'tab' }} -->
+
+  <v-main class="bg-gray-50 h-screen ">
+    <!-- <v-container v-if="loading" fluid>
+      <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        />
+      </div>
+    </v-container> -->
+
+    <v-window v-model="tab">
+      <v-window-item value="Current">
+        <StocksCurrent />
+      </v-window-item>
+
+      <v-window-item value="New">
+        Two
+      </v-window-item>
+
+      <v-window-item value="Damaged">
+        Three
+      </v-window-item>
+    </v-window>
+
+    <!-- <v-container fluid>
+      <div>
+        {{ tab }}
+      </div>
+    </v-container> -->
+  </v-main>
 </template>

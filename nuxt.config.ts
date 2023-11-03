@@ -1,9 +1,10 @@
 import vuetify from 'vite-plugin-vuetify'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
- 
+
   devtools: { enabled: true },
-  css: ["@/assets/css/styles.css", 'vuetify/styles'],
+  css: ['@/assets/css/styles.css', 'vuetify/styles'],
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -12,10 +13,10 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    // @ts-ignore
+    // @ts-expect-error
     // curently this will lead to a type error, but hopefully will be fixed soon #justBetaThings
     ssr: {
-        noExternal: ['vuetify'], // add the vuetify vite plugin
+      noExternal: ['vuetify'], // add the vuetify vite plugin
     },
   },
   modules: [
@@ -38,12 +39,12 @@ export default defineNuxtConfig({
     },
     moduleOptions: {
       /* nuxt-vuetify module options */
-      treeshaking: true ,
+      treeshaking: true,
       useIconCDN: false,
       /* vite-plugin-vuetify options */
-      styles: true ,
-      autoImport: true ,
-        useVuetifyLabs: true , 
-    }
-  }
+      styles: true,
+      autoImport: true,
+      useVuetifyLabs: true,
+    },
+  },
 })
