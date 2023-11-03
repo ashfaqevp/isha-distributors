@@ -1,7 +1,10 @@
 <template>
-  <v-app>
-    <NuxtLayout>
+  <div>
+    <VitePwaManifest />
+    <v-app>
+      <NuxtLayout>
         <NuxtPage />
-     </NuxtLayout>
-  </v-app>
+      </NuxtLayout>
+    </v-app>
+  </div>
 </template>

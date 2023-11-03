@@ -10,7 +10,6 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
-
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
@@ -20,6 +19,7 @@
     "@antfu/eslint-config": "1.0.0-beta.27",
     "@invictus.codes/nuxt-vuetify": "^0.3.0",
     "@nuxt/devtools": "latest",
+    "@vite-pwa/nuxt": "^0.1.1",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.52.0",
     "netlify-cli": "^16.8.0",

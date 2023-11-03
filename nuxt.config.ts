@@ -1,8 +1,6 @@
 import vuetify from 'vite-plugin-vuetify'
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-
   devtools: { enabled: true },
   css: ['@/assets/css/styles.css', 'vuetify/styles'],
   postcss: {
@@ -12,36 +10,68 @@ export default defineNuxtConfig({
     },
   },
 
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Isha Distributors',
+      short_name: 'IshaDistributors',
+      theme_color: '#ffffff',
+      icons: [
+        {
+          src: 'android-chrome-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+      // globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    // client: {
+    //   installPrompt: true,
+    //   // you don't need to include this: only for testing purposes
+    //   // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+    //   periodicSyncForUpdates: 20,
+    // },
+    devOptions: {
+      enabled: true,
+      // suppressWarnings: true,
+      // navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
+  },
+
   vite: {
-    // @ts-expect-error
-    // curently this will lead to a type error, but hopefully will be fixed soon #justBetaThings
     ssr: {
-      noExternal: ['vuetify'], // add the vuetify vite plugin
+      noExternal: ['vuetify'],
     },
   },
   modules: [
-    // ...
     '@pinia/nuxt',
+    '@vite-pwa/nuxt',
     'nuxt-icon',
     '@invictus.codes/nuxt-vuetify',
-    // '@nuxtjs/eslint-module',
-    // async (options, nuxt) => {
-    //   nuxt.hooks.hook('vite:extendConfig', config => config.plugins.push(
-    //       vuetify()
-    //     ))
-    // }
+
   ],
 
   vuetify: {
-    /* vuetify options */
     vuetifyOptions: {
-      // @TODO: list all vuetify options
     },
     moduleOptions: {
-      /* nuxt-vuetify module options */
       treeshaking: true,
       useIconCDN: false,
-      /* vite-plugin-vuetify options */
       styles: true,
       autoImport: true,
       useVuetifyLabs: true,
