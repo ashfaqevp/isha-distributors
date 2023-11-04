@@ -5,6 +5,7 @@
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
+      <BaseToast />
     </v-app>
   </div>
 </template>

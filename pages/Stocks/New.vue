@@ -1,27 +1,21 @@
 <script setup>
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-const { formatAsCurrency, productCategories } = useUtils()
+const { setToast } = useMainStore()
 const router = useRouter()
-
-const body = ref({})
-
-const productList = ref([])
-
-// const selectedProduct = ref({})
-
-// const openAddProduct = ref(false)
-// const openEditProduct = ref(false)
-// const openDeleteProduct = ref(false)
-
-// const openSearch = ref(false)
-// const searchName = ref('')
 
 const today = new Date()
 const date = today.toISOString().split('T')[0]
 
+const form = ref()
 const loading = ref(false)
+const saveLoading = ref(false)
+const body = ref({})
+const productList = ref([])
+const stockList = ref([])
+const currentStockList = ref({})
+const todayStockList = ref({})
 
 async function fetchProducts() {
   loading.value = true
@@ -41,52 +35,114 @@ async function fetchProducts() {
   }
 }
 
-const stockList = ref([])
+async function fetchCurrentStock() {
+  loading.value = true
+  try {
+    const docRef = doc(db, 'stocks', 'current')
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists())
+      currentStockList.value = docSnapshot.data()
+  }
+  catch (error) {
+    console.error('Error fetching current stock:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
-function addProduct() {
-  const item = body.value?.product
-  item.qnty = body.value?.qnty
+async function fetchTodayStock() {
+  loading.value = true
+  try {
+    const docRef = doc(db, 'purchase_history', date)
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists())
+      todayStockList.value = docSnapshot.data()
+  }
+  catch (error) {
+    console.error('Error fetching today stock:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
-  stockList.value.push(item)
+async function addProduct() {
+  const { valid } = await form.value.validate()
+
+  if (!valid) {
+    setToast(true, 'Complete all required fields', 'error')
+    return
+  }
+  const newItem = body.value?.product
+
+  if (newItem && newItem.id !== undefined) {
+    const existingItem = stockList.value.find(item => item.id === newItem.id)
+    const quantityToAdd = Number.parseFloat(body.value?.qnty) || 0
+
+    if (existingItem) {
+      existingItem.qnty = (existingItem.qnty || 0) + quantityToAdd
+    }
+    else {
+      newItem.qnty = quantityToAdd
+      stockList.value.push(newItem)
+    }
+  }
   body.value = {}
 }
 
-const saveLoading = ref(false)
+const currentStock = computed(() => {
+  const newStocks = { ...currentStockList.value }
+  stockList.value.forEach((item) => {
+    const { id, qnty } = item
+    if (newStocks[id] !== undefined)
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)).toString()
+    else
+      newStocks[id] = qnty
+  })
+  return newStocks || {}
+})
 
-const dataToUpdateOrAdd = {
-  // 23674127: 10,
-  21345235: 60,
-  9999335: 60,
-}
+const todayStock = computed(() => {
+  const newStocks = { ...todayStockList.value }
+  stockList.value.forEach((item) => {
+    const { id, qnty } = item
+    if (newStocks[id] !== undefined)
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)).toString()
+    else
+      newStocks[id] = qnty
+  })
+  return newStocks || {}
+})
 
-function save() {
-  saveLoading.value = true
+// SAVING THE DATA
+async function save() {
+  try {
+    saveLoading.value = true
 
-  const docRef = doc(db, 'purchase_history', date)
+    const currentRef = doc(db, 'stocks', 'current')
+    const todayRef = doc(db, 'purchase_history', date)
 
-  setDoc(docRef, dataToUpdateOrAdd, { merge: true })
-    .then(() => {
-      console.log('Document updated or added successfully')
-    })
-    .catch((error) => {
-      console.error('Error updating or adding document: ', error)
-    }).finally(() => {
-      saveLoading.value = false
-    })
+    await setDoc(currentRef, currentStock.value, { merge: true })
+    saveLoading.value = false
 
-  // setDoc(docRef, dataToUpdateOrAdd, { merge: true })
-  // .then(() => {
-  //   console.log('Document updated or added successfully')
-  // })
-  // .catch((error) => {
-  //   console.error('Error updating or adding document: ', error)
-  // }).finally(() => {
-  //   saveLoading.value = false
-  // })
+    await setDoc(todayRef, todayStock.value, { merge: true })
+    saveLoading.value = false
+
+    setToast(true, 'New Stock Added Successfully', 'success')
+    router.push('/stocks')
+  }
+  catch (error) {
+    console.error('An error occurred:', error)
+    saveLoading.value = false
+    setToast(true, 'New Stock not Saved', 'error')
+  }
 }
 
 onMounted (async () => {
   await fetchProducts()
+  await fetchCurrentStock()
+  await fetchTodayStock()
 })
 </script>
 
@@ -107,58 +163,54 @@ onMounted (async () => {
         New Stocks
       </v-app-bar-title>
     </div>
-
-    <template #append>
-      <!-- <v-app-bar-nav-icon @click="openAdd">
-        <Icon name="gg:add" size="24" />
-      </v-app-bar-nav-icon> -->
-    </template>
-
-    <!-- <template #extension /> -->
   </v-app-bar>
 
   <v-main class="bg-gray-50 !h-screen">
     <v-sheet width="full" color="primary" class="!w-full !h-fit  pb-3 " :elevation="10">
-      <div class="py-2 grid grid-cols-6 gap-4 px-3">
-        <v-select
-          v-model="body.product"
-          :items="productList"
-          class="!h-[58px] col-span-3 !brightness-80 "
+      <v-form ref="form" class="">
+        <div class="py-2 grid grid-cols-6 gap-4 px-3">
+          <v-select
+            v-model="body.product"
+            :items="productList"
+            class="!h-[58px] col-span-3 !brightness-80 "
+            label="Product"
+            :rules="[v => !!v || '']"
+            variant="outlined"
+            required
+            item-title="name"
 
-          label="Product"
-          variant="outlined"
-          required
-          item-title="name"
+            return-object
+          />
 
-          return-object
-        />
+          <v-text-field
+            v-model="body.qnty"
+            label="Qnty"
+            type="number"
+            :rules="[v => !!v || '']"
+            variant="outlined"
+            required
+            class="!h-[58px] col-span-2 "
+          />
 
-        <v-text-field
-          v-model="body.qnty"
-          label="Qnty"
-          variant="outlined"
-          class="!h-[58px] col-span-2 "
-        />
-
-        <v-btn
-          color="primary"
-          size="small"
-          rounded
-          class=" !h-[54px] bg-white col-span-1 "
-          :disabled="false"
-          @click="addProduct"
-        >
-          <Icon name="material-symbols:add" size="32" />
-        </v-btn>
-      </div>
+          <v-btn
+            color="primary"
+            size="small"
+            rounded
+            class=" !h-[52px] !w-[52px] bg-white col-span-1 "
+            :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100'"
+            :disabled="saveLoading || loading "
+            @click=" addProduct"
+          >
+            <Icon name="material-symbols:add" size="36" />
+          </v-btn>
+        </div>
+      </v-form>
     </v-sheet>
     <v-container fluid>
       <div class="flex flex-col !px-0">
-        <div class="!h-full ">
+        <div v-if="stockList?.length" class="!h-full !shadow-md !rounded-[10px] ">
           <v-table
             fixed-header
-            class=" !rounded-[10px] !shadow-md"
-            rounded
           >
             <thead class="">
               <tr class="">
@@ -194,11 +246,15 @@ onMounted (async () => {
             </tbody>
           </v-table>
         </div>
+
+        <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
+          No Data !
+        </div>
       </div>
     </v-container>
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full " :loading="saveLoading" rounded @click="save()">
+      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="save()">
         ADD TO STOCK
       </v-btn>
     </div>
