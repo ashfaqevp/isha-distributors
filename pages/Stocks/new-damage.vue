@@ -147,7 +147,7 @@ onMounted (async () => {
     <v-sheet width="full" color="primary" class="!w-full !h-fit  pb-3 " :elevation="10">
       <v-form ref="form" class="">
         <div class="py-2 grid grid-cols-6 gap-4 px-3">
-          <v-select
+          <v-autocomplete
             v-model="body.product"
             :items="productList"
             class="!h-[58px] col-span-3 !brightness-80 "
