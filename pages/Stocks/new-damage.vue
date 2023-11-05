@@ -1,5 +1,5 @@
 <script setup>
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
 const { setToast } = useMainStore()
@@ -7,6 +7,7 @@ const router = useRouter()
 
 const today = new Date()
 const date = today.toISOString().split('T')[0]
+const monthYear = today.toISOString().slice(0, 7)
 
 const form = ref()
 const loading = ref(false)
@@ -15,7 +16,6 @@ const body = ref({})
 const productList = ref([])
 const stockList = ref([])
 const currentStockList = ref({})
-const todayStockList = ref({})
 
 async function fetchProducts() {
   loading.value = true
@@ -51,22 +51,6 @@ async function fetchCurrentStock() {
   }
 }
 
-async function fetchTodayStock() {
-  loading.value = true
-  try {
-    const docRef = doc(db, 'purchase_history', date)
-    const docSnapshot = await getDoc(docRef)
-    if (docSnapshot.exists())
-      todayStockList.value = docSnapshot.data()
-  }
-  catch (error) {
-    console.error('Error fetching today stock:', error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
 async function addProduct() {
   const { valid } = await form.value.validate()
 
@@ -93,61 +77,50 @@ async function addProduct() {
 
 const currentStock = computed(() => {
   const newStocks = { ...currentStockList.value }
-
-  for (const key in newStocks) {
-    if (newStocks[key] === 0)
-      delete newStocks[key]
-  }
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) - Number.parseInt(qnty, 10)) || 0 - (qnty)
     else
-      newStocks[id] = qnty
-  })
-  return newStocks || {}
-})
-
-const todayStock = computed(() => {
-  const newStocks = { ...todayStockList.value }
-  stockList.value.forEach((item) => {
-    const { id, qnty } = item
-    if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
-    else
-      newStocks[id] = qnty
+      newStocks[id] = 0 - (qnty)
   })
   return newStocks || {}
 })
 
 // SAVING THE DATA
-async function save() {
+async function addToDamge() {
+  saveLoading.value = true
   try {
-    saveLoading.value = true
+    const damagedDbRef = doc(db, 'stocks', 'damaged')
+    const damagedRef = collection(damagedDbRef, monthYear)
 
     const currentRef = doc(db, 'stocks', 'current')
-    const todayRef = doc(db, 'purchase_history', date)
 
-    await setDoc(currentRef, currentStock.value)
+    for (const item of stockList.value) {
+      const stockItem = {}
+      stockItem.id = item.id
+      stockItem.date = date
+      stockItem.qnty = item.qnty
+      stockItem.name = item.name
+      stockItem.cost = item.cost
+      await addDoc(damagedRef, stockItem)
+    }
+
+    await setDoc(currentRef, currentStock.value, { merge: true })
     saveLoading.value = false
-
-    await setDoc(todayRef, todayStock.value, { merge: true })
-    saveLoading.value = false
-
-    setToast(true, 'New Stock Added Successfully', 'success')
+    setToast(true, 'Damaged Stock Updated Successfully', 'success')
     router.push('/stocks')
   }
   catch (error) {
     console.error('An error occurred:', error)
     saveLoading.value = false
-    setToast(true, 'New Stock not Saved', 'error')
+    setToast(true, 'New Damages not Saved', 'error')
   }
 }
 
 onMounted (async () => {
   await fetchProducts()
   await fetchCurrentStock()
-  await fetchTodayStock()
 })
 </script>
 
@@ -165,7 +138,7 @@ onMounted (async () => {
 
     <div class="flex justify-left w-full">
       <v-app-bar-title>
-        New Stocks
+        New Damage
       </v-app-bar-title>
     </div>
   </v-app-bar>
@@ -259,8 +232,8 @@ onMounted (async () => {
     </v-container>
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="save()">
-        ADD TO STOCK
+      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="addToDamge()">
+        ADD TO DAMAGE
       </v-btn>
     </div>
   </v-main>

@@ -8,7 +8,10 @@ const tab = ref(null)
 const allTabs = ['Current', 'Today', 'Damaged']
 
 function openAdd() {
-  router.push({ path: '/stocks/new' })
+  if (tab.value === 'Damaged')
+    router.push({ path: '/stocks/new-damage' })
+  else
+    router.push({ path: '/stocks/new' })
 }
 
 async function fetchProducts() {
@@ -105,7 +108,7 @@ onMounted (async () => {
       </v-window-item>
 
       <v-window-item value="Damaged">
-        Three
+        <StocksDamaged />
       </v-window-item>
     </v-window>
   </v-main>
