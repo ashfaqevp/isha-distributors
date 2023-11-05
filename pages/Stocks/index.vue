@@ -1,40 +1,59 @@
 <script setup>
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
 const router = useRouter()
 
-const loading = ref(false)
+const tab = ref(null)
+const allTabs = ['Current', 'Today', 'Damaged']
 
-async function fetchNewStock() {
-//   loading.value = true
-//   try {
-//     const querySnapshot = await getDocs(collection(db, 'products'))
-//     productList.value = querySnapshot.docs.map(doc => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     }))
-//   }
-//   catch (error) {
-//     console.error('Error fetching data:', error)
-//   }
+function openAdd() {
+  if (tab.value === 'Damaged')
+    router.push({ path: '/stocks/new-damage' })
+  else
+    router.push({ path: '/stocks/new' })
+}
 
-//   finally {
-//     loading.value = false
-//   }
+async function fetchProducts() {
+  loading.value = true
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'))
+    productList.value = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+
+  finally {
+    loading.value = false
+  }
+}
+
+async function fetchCurrentStock() {
+  loading.value = true
+  try {
+    const docRef = doc(db, 'stocks', 'current')
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists())
+      currentStocks.value = docSnapshot.data()
+  }
+  catch (error) {
+    console.error('Error fetching current stock:', error)
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 onMounted (async () => {
-  await fetchNewStock()
-  // other functions
+  // await fetchProducts()
+  // await fetchCurrentStock()
 })
 
-const tab = ref(null)
-const allTabs = ['Current', 'New', 'Damaged']
-
-function openAdd() {
-  router.push({ path: '/stocks/new' })
-}
+// TODO: NEED TO FETCHALL PRODUCTS AND CURRENT STOCK FROM HERE AND UPDATE WHILE DELETING STOCK
 </script>
 
 <template>
@@ -77,54 +96,20 @@ function openAdd() {
       </div>
     </template>
   </v-app-bar>
-  <!-- <v-window v-model="tab">
-    <v-window-item value="Current">
-      One
-    </v-window-item>
-
-    <v-window-item value="two">
-      Two
-    </v-window-item>
-
-    <v-window-item value="three">
-      Three
-    </v-window-item>
-  </v-window> -->
-
-  <!-- <div>
-    jhew
-  </div>
-
-  {{ 'tab' }} -->
 
   <v-main class="bg-gray-50 h-screen ">
-    <!-- <v-container v-if="loading" fluid>
-      <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-        />
-      </div>
-    </v-container> -->
-
     <v-window v-model="tab">
       <v-window-item value="Current">
         <StocksCurrent />
       </v-window-item>
 
-      <v-window-item value="New">
-        Two
+      <v-window-item value="Today">
+        <StocksToday />
       </v-window-item>
 
       <v-window-item value="Damaged">
-        Three
+        <StocksDamaged />
       </v-window-item>
     </v-window>
-
-    <!-- <v-container fluid>
-      <div>
-        {{ tab }}
-      </div>
-    </v-container> -->
   </v-main>
 </template>

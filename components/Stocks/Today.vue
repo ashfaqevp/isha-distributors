@@ -1,17 +1,18 @@
 <script setup>
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
-
-// const props = defineProps({
-//   currentStocks: Object,
-// })
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-
 const { formatAsCurrency } = useUtils()
 
+const today = new Date()
+const date = today.toISOString().split('T')[0]
+
 const loading = ref(false)
-const currentStocks = ref({})
+const todayStocks = ref({})
 const productList = ref([])
+
+const selectedStock = ref({})
+const openDeleteStock = ref(false)
 
 async function fetchProducts() {
   loading.value = true
@@ -31,13 +32,13 @@ async function fetchProducts() {
   }
 }
 
-async function fetchCurrentStock() {
+async function fetchTodayStock() {
   loading.value = true
   try {
-    const docRef = doc(db, 'stocks', 'current')
+    const docRef = doc(db, 'purchase_history', date)
     const docSnapshot = await getDoc(docRef)
     if (docSnapshot.exists())
-      currentStocks.value = docSnapshot.data()
+      todayStocks.value = docSnapshot.data()
   }
   catch (error) {
     console.error('Error fetching current stock:', error)
@@ -50,9 +51,9 @@ async function fetchCurrentStock() {
 const stockList = computed(() => {
   const stocks = []
   productList.value.forEach((item) => {
-    if (item.id in currentStocks.value) {
+    if (item.id in todayStocks.value) {
       const stockItem = item
-      stockItem.qnty = currentStocks.value[item.id]
+      stockItem.qnty = todayStocks.value[item.id]
       stocks.push(stockItem)
     }
   })
@@ -72,7 +73,7 @@ const screenHeight = window.screen.height
 
 onMounted (async () => {
   await fetchProducts()
-  await fetchCurrentStock()
+  await fetchTodayStock()
 
   const divElement = document.getElementById('table-stock')
   tableHeight.value = divElement?.offsetHeight
@@ -80,7 +81,7 @@ onMounted (async () => {
 </script>
 
 <template>
-  <v-container id="qq" fluid class="">
+  <v-container fluid class="">
     <div class="flex flex-col !px-0  ">
       <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
         <v-progress-circular
@@ -102,10 +103,10 @@ onMounted (async () => {
               <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
                 Product
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class=" text-center !bg-[#8f9bc4] text-white !font-semibold">
                 Qnty
               </th>
-              <th class="text-end !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
                 Amount
               </th>
             </tr>
@@ -115,17 +116,38 @@ onMounted (async () => {
             <tr
               v-for="(item, index) in stockList"
               :key="item.id"
-              class="w-full !py-10 !h-10  "
+              class="w-full !py-10 !h-10 text-sm "
             >
-              <td>{{ index + 1 }}</td>
-              <td class="font-semibold w-fit ">
+              <td class="font-semibold w-fit text-sm  ">
+                {{ index + 1 }}
+              </td>
+              <td class="font-semibold w-fit text-sm  ">
                 {{ item.name }}
               </td>
-              <td class="font-semibold">
+              <td class="font-semibold text-sm text-center ">
                 {{ item.qnty }}
               </td>
-              <td class="text-end text-sm  !min-w-[120px]">
+              <td class="text-start text-sm  !min-w-[130px] items-end relative ">
                 {{ formatAsCurrency(item.qnty * item.cost) }}
+
+                <span class=" absolute right-1 text-end ">
+                  <button>
+                    <Icon name="icon-park-outline:more-one" size="22" class="" />
+                  </button>
+
+                  <v-menu activator="parent" width="100px" class="!w-[50px]">
+                    <v-list>
+                      <v-list-item @click="openDeleteStock = true ; selectedStock = item">
+                        <template #append>
+                          <Icon name="mdi:delete-outline" size="18" />
+                        </template>
+                        <v-list-item-title>
+                          Delete
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </span>
               </td>
             </tr>
           </tbody>
@@ -141,32 +163,7 @@ onMounted (async () => {
         <b> {{ formatAsCurrency(totalAmount) }}</b>
       </p>
     </div>
-
-    <!-- <v-list lines="two" class="!bg-gray-50">
-      <template v-for="(folder, index) in items">
-        <v-list-item>
-          <template #prepend>
-            <v-avatar color="#3b3b3b">
-              AS
-            </v-avatar>
-          </template>
-
-          <template #title>
-            Milk
-          </template>
-          <template #append>
-            37
-          </template>
-        </v-list-item>
-        <v-divider
-          v-if="index < items.length - 1"
-          :key="`${index}-divider`"
-
-          inset
-        >
-          />
-        </v-divider>
-      </template>
-    </v-list> -->
   </v-container>
+
+  <StocksDialogDeleteStock v-model="openDeleteStock" :stock="selectedStock" @refresh="fetchTodayStock" />
 </template>
