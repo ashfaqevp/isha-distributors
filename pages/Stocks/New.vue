@@ -101,7 +101,7 @@ const currentStock = computed(() => {
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10))
     else
       newStocks[id] = qnty
   })
@@ -113,7 +113,7 @@ const todayStock = computed(() => {
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10))
     else
       newStocks[id] = qnty
   })
