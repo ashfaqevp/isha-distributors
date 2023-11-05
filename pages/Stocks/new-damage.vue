@@ -232,7 +232,7 @@ onMounted (async () => {
     </v-container>
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="addToDamge()">
+      <v-btn color="primary" size="x-large" class=" !w-full !text-sm  !font-bold" :loading="saveLoading" rounded @click="addToDamge()">
         ADD TO DAMAGE
       </v-btn>
     </div>
