@@ -9,7 +9,7 @@ const { db } = useFirebaseStore()
 const router = useRouter()
 
 function goToAddShop() {
-  router.push('/shops/new')
+  router.push('/shops/add')
 }
 
 function goToShop(id) {
