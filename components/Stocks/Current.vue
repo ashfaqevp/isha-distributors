@@ -115,13 +115,13 @@ onMounted (async () => {
             <tr
               v-for="(item, index) in stockList"
               :key="item.id"
-              class="w-full !py-10 !h-10  "
+              class="w-full !py-10 !h-10 text-sm"
             >
               <td>{{ index + 1 }}</td>
-              <td class="font-semibold w-fit ">
+              <td class="font-semibold w-fit text-sm">
                 {{ item.name }}
               </td>
-              <td class="font-semibold">
+              <td class="font-semibold text-sm">
                 {{ item.qnty }}
               </td>
               <td class="text-end text-sm  !min-w-[120px]">

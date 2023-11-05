@@ -80,7 +80,7 @@ const currentStock = computed(() => {
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) - Number.parseInt(qnty, 10)) || 0 - (qnty)
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) - Number.parseInt(qnty, 10))
     else
       newStocks[id] = 0 - (qnty)
   })
@@ -232,7 +232,7 @@ onMounted (async () => {
     </v-container>
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="addToDamge()">
+      <v-btn color="primary" size="x-large" class=" !w-full !text-sm  !font-bold" :loading="saveLoading" rounded @click="addToDamge()">
         ADD TO DAMAGE
       </v-btn>
     </div>

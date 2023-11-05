@@ -101,7 +101,7 @@ const currentStock = computed(() => {
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10))
     else
       newStocks[id] = qnty
   })
@@ -113,7 +113,7 @@ const todayStock = computed(() => {
   stockList.value.forEach((item) => {
     const { id, qnty } = item
     if (newStocks[id] !== undefined)
-      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10)) || qnty
+      newStocks[id] = (Number.parseInt(newStocks[id], 10) + Number.parseInt(qnty, 10))
     else
       newStocks[id] = qnty
   })
@@ -177,7 +177,7 @@ onMounted (async () => {
           <v-select
             v-model="body.product"
             :items="productList"
-            class="!h-[58px] col-span-3 !brightness-80 "
+            class="!h-[48px] col-span-3 !brightness-80 "
             label="Product"
             :rules="[v => !!v || '']"
             variant="outlined"
@@ -194,19 +194,19 @@ onMounted (async () => {
             :rules="[v => !!v || '']"
             variant="outlined"
             required
-            class="!h-[58px] col-span-2 "
+            class="!h-[48px] col-span-2 "
           />
 
           <v-btn
             color="primary"
             size="small"
             rounded
-            class=" !h-[52px] !w-[52px] bg-white col-span-1 "
+            class=" !h-[50px] !w-[50px] bg-white col-span-1 "
             :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100'"
             :disabled="saveLoading || loading "
             @click=" addProduct"
           >
-            <Icon name="material-symbols:add" size="36" />
+            <Icon name="material-symbols:add" size="36" class="text-primary" />
           </v-btn>
         </div>
       </v-form>
@@ -259,7 +259,7 @@ onMounted (async () => {
     </v-container>
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full !text-sm" :loading="saveLoading" rounded @click="save()">
+      <v-btn color="primary" size="x-large" class=" !w-full !text-sm !font-bold" :loading="saveLoading" rounded @click="save()">
         ADD TO STOCK
       </v-btn>
     </div>
