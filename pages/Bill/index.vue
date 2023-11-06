@@ -84,6 +84,7 @@ const creditBalance = computed(() => {
 const total = computed(() => {
   if (purchaseList?.value?.length)
     return purchaseList?.value.reduce((total, item) => total + item.total, 0)
+  else return 0
 })
 
 const currentStock = computed(() => {
@@ -336,8 +337,6 @@ onMounted (async () => {
         </div>
       </div>
     </v-container>
-
-    {{ currentStock }}
 
     <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
       <v-btn color="#495372" size="x-large" class=" !w-full !text-sm !font-bold" :loading="saveLoading" rounded @click="save()">
