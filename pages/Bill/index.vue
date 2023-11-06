@@ -84,6 +84,7 @@ const creditBalance = computed(() => {
 const total = computed(() => {
   if (purchaseList?.value?.length)
     return purchaseList?.value.reduce((total, item) => total + item.total, 0)
+  else return 0
 })
 
 const currentStock = computed(() => {
@@ -201,7 +202,8 @@ onMounted (async () => {
     </template>
   </v-app-bar>
 
-  <v-main class="bg-gray-50 !h-screen">
+  <!-- <div class="relative h-full"> -->
+  <v-main class="bg-gray-50 ">
     <v-sheet width="full" color="#495372" class="!w-full !h-fit  pb-3 " :elevation="10">
       <v-form ref="form" class="">
         <div class="py-2 grid grid-cols-6 gap-4 px-3 !gap-y-[18px]">
@@ -336,18 +338,16 @@ onMounted (async () => {
         </div>
       </div>
     </v-container>
-
-    {{ currentStock }}
-
-    <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="#495372" size="x-large" class=" !w-full !text-sm !font-bold" :loading="saveLoading" rounded @click="save()">
-        <span class="mr-4">
-          {{ 'BILL' }}
-        </span>
-        <span class="text-sm !font-semibold">
-          {{ `${formatAsCurrency(total || 0)}` }}
-        </span>
-      </v-btn>
-    </div>
   </v-main>
+
+  <div class="h-fit w-full sticky !bottom-0 !w-full !px-10 py-6 ">
+    <v-btn color="#495372" size="x-large" class=" !w-full !text-sm !font-bold" :loading="saveLoading" rounded @click="save()">
+      <span class="mr-4">
+        {{ 'BILL' }}
+      </span>
+      <span class="text-sm !font-semibold">
+        {{ `${formatAsCurrency(total || 0)}` }}
+      </span>
+    </v-btn>
+  </div>
 </template>

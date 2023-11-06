@@ -1,7 +1,6 @@
 <script setup>
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
-
-const { db } = useFirebaseStore()
+// import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+// const { db } = useFirebaseStore()
 const router = useRouter()
 
 const tab = ref(null)
@@ -14,39 +13,39 @@ function openAdd() {
     router.push({ path: '/stocks/new' })
 }
 
-async function fetchProducts() {
-  loading.value = true
-  try {
-    const querySnapshot = await getDocs(collection(db, 'products'))
-    productList.value = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
-  }
-  catch (error) {
-    console.error('Error fetching data:', error)
-  }
+// async function fetchProducts() {
+//   loading.value = true
+//   try {
+//     const querySnapshot = await getDocs(collection(db, 'products'))
+//     productList.value = querySnapshot.docs.map(doc => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     }))
+//   }
+//   catch (error) {
+//     console.error('Error fetching data:', error)
+//   }
 
-  finally {
-    loading.value = false
-  }
-}
+//   finally {
+//     loading.value = false
+//   }
+// }
 
-async function fetchCurrentStock() {
-  loading.value = true
-  try {
-    const docRef = doc(db, 'stocks', 'current')
-    const docSnapshot = await getDoc(docRef)
-    if (docSnapshot.exists())
-      currentStocks.value = docSnapshot.data()
-  }
-  catch (error) {
-    console.error('Error fetching current stock:', error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+// async function fetchCurrentStock() {
+//   loading.value = true
+//   try {
+//     const docRef = doc(db, 'stocks', 'current')
+//     const docSnapshot = await getDoc(docRef)
+//     if (docSnapshot.exists())
+//       currentStocks.value = docSnapshot.data()
+//   }
+//   catch (error) {
+//     console.error('Error fetching current stock:', error)
+//   }
+//   finally {
+//     loading.value = false
+//   }
+// }
 
 onMounted (async () => {
   // await fetchProducts()
