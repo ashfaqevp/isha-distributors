@@ -13,7 +13,7 @@ function goToAddShop() {
 }
 
 function goToShop(id) {
-  router.push({ path: '/shops/shop', query: { id } })
+  router.push({ path: '/shop', query: { id } })
 }
 
 const shopList = ref([])
