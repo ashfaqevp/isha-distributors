@@ -150,7 +150,7 @@ async function save() {
 
     saveLoading.value = false
     setToast(true, 'Bill added to shop successfully', 'success')
-    router.push({ path: '/shops/shop', query: { id: shop_id } })
+    router.push({ path: '/shop', query: { id: shop_id } })
   }
   catch (error) {
     console.error('An error occurred:', error)
