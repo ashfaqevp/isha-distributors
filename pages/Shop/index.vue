@@ -42,7 +42,7 @@ async function fetchTodayPurchase() {
       ...doc.data(),
     }))
     todayData.value.total = todayData.value.purchaseList.reduce((accumulator, currentItem) => {
-      return accumulator + todayData.value.purchaseList.price
+      return accumulator + currentItem.total
     }, 0)
   }
   catch (error) {
@@ -54,6 +54,8 @@ onMounted (async () => {
   await fetchShop()
   await fetchTodayPurchase()
 })
+
+const openCash = ref(false)
 </script>
 
 <template>
@@ -208,7 +210,7 @@ onMounted (async () => {
                     Total :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(0) }}
+                    {{ formatAsCurrency(todayData.total) }}
                   </span>
                 </span>
 
@@ -302,6 +304,8 @@ onMounted (async () => {
               </v-table>
             </div>
 
+            {{ todayData }}
+
             <div class="w-full justify-end flex">
               <div class="w-50 flex flex-col w-40 justify-end text-end !px-3 pt-3 gap-y-2 bg-yellow-100">
                 <span class="flex justify-between">
@@ -309,7 +313,7 @@ onMounted (async () => {
                     Total :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(0) }}
+                    {{ formatAsCurrency(todayData.total) }}
                   </span>
                 </span>
 
@@ -370,7 +374,7 @@ onMounted (async () => {
               size="small"
               height="52"
               width="52"
-              @click="goToBill"
+              @click="openCash = true "
             >
               <Icon name="mdi:cash-edit" size="28" />
             </v-btn>
@@ -391,4 +395,5 @@ onMounted (async () => {
       </v-btn>
     </div>
   </div>
+  <ShopDialogCash v-model="openCash" :cash-list="todayData.purchaseList" @refresh="fetchProducts" />
 </template>
