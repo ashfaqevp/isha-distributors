@@ -1,5 +1,6 @@
 <script setup>
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import moment from 'moment'
 
 const { db } = useFirebaseStore()
 const router = useRouter()
@@ -9,29 +10,36 @@ const { formatAsCurrency } = useUtils()
 const route = useRoute()
 const { id } = route?.query
 
-function goToBill() {
-  router.push({ path: '/bill', query: { shop_id: id } })
-}
+const today = moment()
+const date = today.format('YYYY-MM-DD')
 
+const loading = ref(false)
 const shop = ref({})
+const todayData = ref({})
+const lastdayData = ref({})
+
+const lastPurchaseDate = computed(() => {
+  if (shop?.value?.last_update === date && shop.value?.prev_update)
+    return shop.value?.prev_update
+  else if (shop?.value?.last_update !== date)
+    return shop?.value?.last_update
+})
 
 async function fetchShop() {
   try {
     const docRef = doc(db, 'shops', id)
     const docSnapshot = await getDoc(docRef)
-    if (docSnapshot.exists())
+    if (docSnapshot.exists()) {
       shop.value = docSnapshot.data()
+      shop.value.id = id
+    }
   }
   catch (error) {
     console.error('Error fetching data:', error)
   }
 }
 
-const todayData = ref({})
-
-const today = new Date()
-const date = today.toISOString().split('T')[0]
-
+// Fetch Today Data
 async function fetchTodayPurchase() {
   try {
     const billRef = doc(db, 'bills', date)
@@ -50,10 +58,93 @@ async function fetchTodayPurchase() {
   }
 }
 
-onMounted (async () => {
+async function fetchTodayCash() {
+  try {
+    const paidDbRef = doc(db, 'cash', date)
+    const paidRef = collection(paidDbRef, id)
+
+    const querySnapshot = await getDocs(paidRef)
+    todayData.value.cashList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    todayData.value.cash = todayData.value.cashList.reduce((accumulator, currentItem) => {
+      return (Number.parseInt(accumulator, 10) + Number.parseInt(currentItem.cash, 10))
+    }, 0)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+// Fetch Last Date Data
+async function fetchLastPurchase() {
+  try {
+    const billRef = doc(db, 'bills', lastPurchaseDate.value)
+    const dbRef = collection(billRef, id)
+    const querySnapshot = await getDocs(dbRef)
+    lastdayData.value.purchaseList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    lastdayData.value.total = lastdayData.value.purchaseList.reduce((accumulator, currentItem) => {
+      return accumulator + currentItem.total
+    }, 0)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+async function fetchLastCash() {
+  try {
+    const paidDbRef = doc(db, 'cash', lastPurchaseDate.value)
+    const paidRef = collection(paidDbRef, id)
+
+    const querySnapshot = await getDocs(paidRef)
+    lastdayData.value.cashList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    lastdayData.value.cash = lastdayData.value.cashList.reduce((accumulator, currentItem) => {
+      return (Number.parseInt(accumulator, 10) + Number.parseInt(currentItem.cash, 10))
+    }, 0)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+function goToBill() {
+  router.push({ path: '/bill', query: { shop_id: id } })
+}
+
+async function fetchDb() {
+  loading.value = true
   await fetchShop()
   await fetchTodayPurchase()
+  await fetchTodayCash()
+
+  loading.value = false
+}
+
+onMounted (async () => {
+  console.log(today)
+  console.log(date)
+
+  await fetchDb()
+
+  loading.value = await true
+  if (lastPurchaseDate.value) {
+    await fetchLastPurchase()
+    await fetchLastCash()
+  }
+  loading.value = await false
 })
+
+function gotoShops() {
+  router.push({ path: '/shops' })
+}
 
 const openCash = ref(false)
 </script>
@@ -67,7 +158,7 @@ const openCash = ref(false)
     >
       <template #prepend>
         <v-app-bar-nav-icon class="mx-0">
-          <Icon name="eva:arrow-back-outline" size="22" @click="router.back()" />
+          <Icon name="eva:arrow-back-outline" size="22" @click="gotoShops" />
         </v-app-bar-nav-icon>
       </template>
 
@@ -103,11 +194,8 @@ const openCash = ref(false)
                 Credit Balance
               </p>
               <p class="py-1 font-bold text-indigo text-lg">
-                {{ formatAsCurrency(shop?.credit_limit || 0) }}
+                {{ formatAsCurrency(shop?.credit_limit || 5000) }}
               </p>
-            <!-- <p class="font-semibold text-gray-400 text-sm  ">
-              ({{ formatAsCurrency(shop?.pending || 6700) }})
-            </p> -->
             </div>
           </div>
         </v-card-text>
@@ -115,19 +203,18 @@ const openCash = ref(false)
     </div>
 
     <v-main class="bg-gray-50 h-full">
-      <!-- <v-container v-if="loading" fluid>
-      <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-        />
-      </div>
-      absolute -top-10
-    </v-container> -->
+      <v-container v-if="loading" fluid>
+        <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
+          <v-progress-circular
+            indeterminate
+            color="primary"
+          />
+        </div>
+      </v-container>
 
-      <v-container fluid>
+      <v-container v-else fluid>
         <!-- TODAY -->
-        <v-card class="mt-3">
+        <v-card v-if="todayData?.total || todayData?.cash" class="my-3 mb-5">
           <v-card-item>
             <v-card-title>
               <div class=" flex justify-between">
@@ -140,7 +227,7 @@ const openCash = ref(false)
           </v-card-item>
 
           <v-card-text>
-            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[10px] ">
+            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[5px] ">
               <v-table
                 fixed-header
               >
@@ -204,13 +291,13 @@ const openCash = ref(false)
             </div>
 
             <div class="w-full justify-end flex">
-              <div class="w-full flex flex-col w-40 justify-end text-end !px-3 pt-3 gap-y-2 bg-yellow-0">
+              <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
                 <span class="flex justify-between">
                   <spna>
                     Total :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(todayData.total) }}
+                    {{ formatAsCurrency(todayData?.total || 0) }}
                   </span>
                 </span>
 
@@ -219,7 +306,7 @@ const openCash = ref(false)
                     OB :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(0) }}
+                    {{ formatAsCurrency(shop?.pending || 0 + ((todayData?.cash || 0 - todayData?.total || 0) || 0)) }}
                   </span>
                 </span>
 
@@ -227,8 +314,8 @@ const openCash = ref(false)
                   <spna>
                     Cash :
                   </spna>
-                  <span>
-                    {{ formatAsCurrency(0) }}
+                  <span class="text-green font-semibold">
+                    {{ formatAsCurrency(todayData?.cash) }}
                   </span>
                 </span>
 
@@ -236,8 +323,8 @@ const openCash = ref(false)
                   <spna>
                     Balance :
                   </spna>
-                  <span>
-                    {{ formatAsCurrency(0) }}
+                  <span class="text-red font-semibold">
+                    {{ formatAsCurrency(shop?.pending) }}
                   </span>
                 </span>
               </div>
@@ -245,13 +332,13 @@ const openCash = ref(false)
           </v-card-text>
         </v-card>
 
-        <!-- YESTERDAY -->
+        <!-- LASTDAY -->
 
-        <v-card class="mt-3">
+        <v-card v-if="lastdayData?.total || lastdayData?.cash" class="mt-3">
           <v-card-item>
             <v-card-title>
               <div class=" flex justify-between">
-                Yesterday
+                {{ lastPurchaseDate }}
                 <button>
                   <Icon name="ic:baseline-share" class="" />
                 </button>
@@ -260,7 +347,7 @@ const openCash = ref(false)
           </v-card-item>
 
           <v-card-text>
-            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[10px] ">
+            <div v-if="lastdayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[5px] ">
               <v-table
                 fixed-header
               >
@@ -283,7 +370,7 @@ const openCash = ref(false)
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(item, index) in todayData.purchaseList"
+                    v-for="(item, index) in lastdayData.purchaseList"
                     :key="item.id"
                     class="w-full"
                   >
@@ -304,16 +391,14 @@ const openCash = ref(false)
               </v-table>
             </div>
 
-            {{ todayData }}
-
             <div class="w-full justify-end flex">
-              <div class="w-50 flex flex-col w-40 justify-end text-end !px-3 pt-3 gap-y-2 bg-yellow-100">
+              <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
                 <span class="flex justify-between">
                   <spna>
                     Total :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(todayData.total) }}
+                    {{ formatAsCurrency(lastdayData.total || 0) }}
                   </span>
                 </span>
 
@@ -322,7 +407,7 @@ const openCash = ref(false)
                     OB :
                   </spna>
                   <span>
-                    {{ formatAsCurrency(0) }}
+                    {{ formatAsCurrency(((shop.pending + ((todayData?.cash - todayData?.total) || 0)) + lastdayData.cash - lastdayData.total || 0)) }}
                   </span>
                 </span>
 
@@ -330,8 +415,8 @@ const openCash = ref(false)
                   <spna>
                     Cash :
                   </spna>
-                  <span>
-                    {{ formatAsCurrency(0) }}
+                  <span class="text-green font-semibold">
+                    {{ formatAsCurrency(lastdayData?.cash || 0) }}
                   </span>
                 </span>
 
@@ -339,12 +424,16 @@ const openCash = ref(false)
                   <spna>
                     Balance :
                   </spna>
-                  <span>
-                    {{ formatAsCurrency(0) }}
+                  <span class="text-red font-semibold">
+                    {{ formatAsCurrency(((shop.pending + ((todayData.cash - todayData.total) || 0)))) }}
                   </span>
                 </span>
               </div>
             </div>
+
+            <!-- {{ todayData }} --------
+
+            {{ lastdayData }} -->
           </v-card-text>
         </v-card>
       </v-container>
@@ -395,5 +484,5 @@ const openCash = ref(false)
       </v-btn>
     </div>
   </div>
-  <ShopDialogCash v-model="openCash" :cash-list="todayData.purchaseList" @refresh="fetchProducts" />
+  <ShopDialogCash v-model="openCash" :shop="shop" :cash-list="todayData.cashList" @refresh="fetchDb" />
 </template>

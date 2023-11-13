@@ -1,4 +1,5 @@
 <script setup>
+import moment from 'moment'
 import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
@@ -9,8 +10,8 @@ const { setToast } = useMainStore()
 
 const { shop_id } = route?.query
 
-const today = new Date()
-const date = today.toISOString().split('T')[0]
+const today = moment()
+const date = today.format('YYYY-MM-DD')
 
 const form = ref()
 const shop = ref({})
@@ -145,8 +146,12 @@ async function save() {
     await setDoc(currentRef, currentStock.value, { merge: true })
 
     // update shop details
-    const newShopDetails = { pending: (shop.value?.pending + total.value), last_update: date }
-    await setDoc(shopRef, newShopDetails, { merge: true })
+
+    // create shop update
+    const shopUpdated = { pending: ((Number.parseInt(shop.value?.pending, 10) + Number.parseInt(total.value, 10))), last_update: date }
+    if (shop.value?.last_update?.length && shop.value?.last_update !== date)
+      shopUpdated.prev_update = shop.value?.last_update
+    await setDoc(shopRef, shopUpdated, { merge: true })
 
     saveLoading.value = false
     setToast(true, 'Bill added to shop successfully', 'success')
