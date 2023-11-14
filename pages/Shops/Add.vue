@@ -4,7 +4,7 @@ import { addDoc, collection } from 'firebase/firestore'
 const router = useRouter()
 const { db } = useFirebaseStore()
 
-const shopTyeList = ['normal', 'special', 'dealer']
+const shopTyeList = ['normal', 'special', 'discount', 'dealer']
 
 const name = ref('')
 const place = ref('')
@@ -18,6 +18,7 @@ async function addShop() {
       place: place.value,
       phone: phone.value,
       type: type.value,
+      credit_limit: 3000,
       pending: 0,
     }
     const dbRef = collection(db, 'shops')
