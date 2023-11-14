@@ -200,44 +200,6 @@ onMounted (async () => {
     <ProductsEditDialog v-model="openEditProduct" :product="selectedProduct" @refresh="fetchProducts" />
     <ProductsDeleteDialog v-model="openDeleteProduct" :product="selectedProduct" @refresh="fetchProducts" />
   </v-main>
-
-  <!-- <v-container color="#000000">
-    <v-list lines="two">
-      <template v-for="(folder, index) in items">
-        <v-list-item>
-          <template #prepend>
-            <v-avatar color="#3b3b3b">
-              AS
-            </v-avatar>
-          </template>
-
-          <template #title>
-            Summer BBQ <span class="text-grey-lighten-1">4</span>
-          </template>
-
-          <template #subtitle>
-            <span class="font-weight-bold">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.
-          </template>
-
-          <template #append>
-            <v-btn
-              variant="text"
-            >
-              37
-            </v-btn>
-          </template>
-        </v-list-item>
-        <v-divider
-          v-if="index < items.length - 1"
-          :key="`${index}-divider`"
-
-          inset
-        >
-          />
-        </v-divider>
-      </template>
-    </v-list>
-  </v-container> -->
 </template>
 
 <style>
