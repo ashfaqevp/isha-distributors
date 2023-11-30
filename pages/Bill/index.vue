@@ -118,6 +118,7 @@ async function addProduct() {
     name: body.value.product.name,
     price: body.value.price,
     qnty: body.value.qnty || 1,
+    cost: body.value.product.cost,
     total: body.value.price * body.value.qnty,
   }
 
