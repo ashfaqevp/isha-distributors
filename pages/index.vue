@@ -35,8 +35,8 @@ function gotoStocks() {
   router.push({ path: '/stocks' })
 }
 
-function gotoShop() {
-  router.push({ path: '/shop' })
+function gotoReports() {
+  router.push({ path: '/reports' })
 }
 </script>
 
@@ -55,12 +55,8 @@ function gotoShop() {
         STOCK
       </BaseButton>
 
-      <BaseButton class="h-[60px]" @click="gotoShops">
+      <BaseButton class="h-[60px]" @click="gotoReports">
         REPORT
-      </BaseButton>
-
-      <BaseButton class="h-[60px]" @click="gotoShop">
-        Shop
       </BaseButton>
     </div>
   </div>
