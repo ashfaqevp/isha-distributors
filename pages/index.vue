@@ -5,23 +5,6 @@ const { db } = useFirebaseStore()
 
 const billList = ref([])
 
-// const fetchData = async () => {
-//     try {
-//         const querySnapshot = await getDocs(collection(db, 'Bill'));
-//         billList.value = querySnapshot.docs.map(doc => ({
-//             id: doc.id,
-//             ...doc.data(),
-//         }));
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//     }
-// };
-
-// onMounted (async () => {
-//     await fetchData();
-//     //other functions
-// })
-
 const router = useRouter()
 
 function gotoShops() {
@@ -38,6 +21,10 @@ function gotoStocks() {
 function gotoReports() {
   router.push({ path: '/reports' })
 }
+
+function gotoCollection() {
+  router.push({ path: '/collection' })
+}
 </script>
 
 <template>
@@ -45,6 +32,10 @@ function gotoReports() {
     <div class="flex flex-col gap-5">
       <BaseButton class="h-[60px]" @click="gotoShops">
         SHOPS
+      </BaseButton>
+
+      <BaseButton class="h-[60px]" @click="gotoCollection">
+        COLLECTION
       </BaseButton>
 
       <BaseButton class="h-[60px]" @click="goToProducts">
