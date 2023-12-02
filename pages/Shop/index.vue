@@ -263,7 +263,7 @@ const openCash = ref(false)
                       <span class="font-semibold mr-3"> {{ item.qnty }}</span>
                       <span class="font-100 !text-xs text-gray-400">x{{ item.price }}</span>
                     </td>
-                    <td class=" ext-start text-sm  !min-w-[130px] items-end relative  ">
+                    <td class="text-start text-sm  !min-w-[130px] items-end relative">
                       {{ formatAsCurrency(item.total) }}
 
                       <span class=" absolute right-1 text-end ">

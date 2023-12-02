@@ -1,5 +1,5 @@
 <script setup>
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 // const props = defineProps({
 //   currentStocks: Object,
@@ -141,32 +141,5 @@ onMounted (async () => {
         <b> {{ formatAsCurrency(totalAmount) }}</b>
       </p>
     </div>
-
-    <!-- <v-list lines="two" class="!bg-gray-50">
-      <template v-for="(folder, index) in items">
-        <v-list-item>
-          <template #prepend>
-            <v-avatar color="#3b3b3b">
-              AS
-            </v-avatar>
-          </template>
-
-          <template #title>
-            Milk
-          </template>
-          <template #append>
-            37
-          </template>
-        </v-list-item>
-        <v-divider
-          v-if="index < items.length - 1"
-          :key="`${index}-divider`"
-
-          inset
-        >
-          />
-        </v-divider>
-      </template>
-    </v-list> -->
   </v-container>
 </template>
