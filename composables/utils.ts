@@ -1,7 +1,12 @@
 import { storeToRefs } from 'pinia'
+import moment from 'moment'
 
 export function useUtils() {
+  const date = moment()
+  const today = date.format('YYYY-MM-DD')
+
   const productCategories = ['Milk Products', 'Curd & Sambaram', 'Ghee & Butter', 'Ice Creams', 'Sweet & Drinks', 'Others']
+  const shopCategories = ['normal', 'discount', 'special', 'dealer']
 
   function formatAsCurrency(input: any) {
     const amount = Number.parseFloat(input).toFixed(2)
@@ -17,6 +22,8 @@ export function useUtils() {
 
   return {
     productCategories,
+    shopCategories,
+    today,
 
     capitalize,
     formatAsCurrency,

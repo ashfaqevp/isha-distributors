@@ -437,11 +437,12 @@ const openCash = ref(false)
           </v-card-text>
         </v-card>
       </v-container>
+      <CoreNavSpacer />
     </v-main>
 
     <!-- BOTTOM ACTION BUTTON -->
 
-    <div class=" !fixed !bottom-[16px] flex justify-end px-5 !h-100 right-0  ">
+    <div class=" !fixed !bottom-[56px] flex justify-end px-5 !h-100 right-0  ">
       <v-btn
         v-model="fab"
         color="blue darken-2"

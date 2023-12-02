@@ -1,16 +1,20 @@
 <script setup>
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-const { formatAsCurrency } = useUtils()
+const { formatAsCurrency, today } = useUtils()
 const router = useRouter()
 
-const openAddProduct = ref(false)
+const openAddShop = ref(false)
 const openSearch = ref(false)
 const searchName = ref('')
 const loading = ref(false)
 
 const shopList = ref([])
+const placeList = ref([])
+
+const filter = ref('')
+const filterPlace = ref('')
 
 async function fetchData() {
   try {
@@ -24,11 +28,6 @@ async function fetchData() {
     console.error('Error fetching data:', error)
   }
 }
-
-const filterdShops = computed(() => {
-  if (shopList.value?.length)
-    return shopList.value.filter(item => item.name.toLowerCase().includes(searchName.value.toLowerCase()))
-})
 
 function formatAvatar(inputString) {
   const words = inputString.split(' ')
@@ -44,36 +43,67 @@ function formatAvatar(inputString) {
 function formatColor(input) {
   switch (input) {
     case 'normal' :
-      return '#174EA6'
+      return '#1BAFD0'
 
     case 'discount':
-      return '#34A853'
+      return '#6967CE'
 
     case 'special' :
-      return '#f44336'
+      return '#FFB900'
 
     case 'dealer':
-      return '#4285F4'
+      return '#FD636B'
 
     default:
       return '#9AA0A6'
   }
 }
 
-onMounted (async () => {
-  await fetchData()
-})
+async function fetchPlaces() {
+  loading.value = true
+  try {
+    const docRef = doc(db, 'others', 'places')
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists())
+      placeList.value = docSnapshot.data().place_list || []
+  }
+  catch (error) {
+    console.error('Error fetching Places:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
 watch(() => openSearch, () => {
   if (openSearch.value === true) {
+    filter.value = ''
     const searchIput = (document.getElementsByClassName('search_input'))
     searchIput[0]?.querySelectorAll('input')[0].focus()
   }
 }, { deep: true, immediate: true })
 
-function goToAddShop() {
-  router.push('/shops/add')
-}
+const filterdShops = computed(() => {
+  if (shopList.value?.length)
+    return shopList.value.filter(item => item.name.toLowerCase().includes(searchName.value.toLowerCase()))
+})
+
+const pendingSortedShops = computed(() => {
+  if (shopList.value?.length) {
+    const sortedArray = [...filterdShops.value].sort((a, b) => {
+      const pendingA = a?.pending || 0
+      const pendingB = b?.pending || 0
+
+      return pendingB - pendingA
+    })
+    return sortedArray
+  }
+})
+
+onMounted (async () => {
+  await fetchData()
+  await fetchPlaces()
+})
 
 function goToShop(id) {
   router.push({ path: '/shop', query: { id } })
@@ -93,16 +123,69 @@ function goToShop(id) {
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        Shops
+        <span class="font-semibold">
+          Shops
+        </span>
+
+        <span v-if="filter === 'pending_sort'" class="capitalize opacity-50 text-sm ml-2">
+          <span>
+            Pending
+            <Icon name="pepicons-pop:sort" color="white" size="20" />
+          </span>
+        </span>
+
+        <span v-else-if="filter === 'place'" class="capitalize !max-w-[20px] truncate  opacity-50 text-sm ml-2 ">
+          {{ filterPlace }}
+        </span>
       </v-app-bar-title>
     </div>
 
     <template v-if="!openSearch" #append>
       <v-app-bar-nav-icon @click="openSearch = true">
-        <Icon name="gg:search" size="22" />
+        <Icon name="gg:search" size="24" />
       </v-app-bar-nav-icon>
-      <v-app-bar-nav-icon @click="openAddProduct = true ">
-        <Icon name="gg:add" size="22" @click="goToAddShop" />
+      <v-app-bar-nav-icon>
+        <Icon name="gg:add" size="24" @click="openAddShop = true" />
+      </v-app-bar-nav-icon>
+
+      <v-app-bar-nav-icon>
+        <v-button>
+          <Icon name="mingcute:filter-line" size="24" />
+        </v-button>
+
+        <v-menu activator="parent" width="180px" class="!w-[50px]">
+          <v-list>
+            <v-list-item @click="filter = ''">
+              <template #append>
+                <Icon name="ic:round-clear-all" size="24" cclass="text-blue-900" />
+              </template>
+              <v-list-item-title>
+                All
+              </v-list-item-title>
+            </v-list-item>
+            <hr>
+            <v-list-item
+              v-for="(item, index) in placeList"
+              :key="item"
+              @click="() => { filter = 'place', filterPlace = item }"
+            >
+              <v-list-item-title>
+                <span class="capitalize">
+                  {{ item }}
+                </span>
+              </v-list-item-title>
+            </v-list-item>
+            <hr>
+            <v-list-item @click="filter = 'pending_sort'">
+              <template #append>
+                <Icon name="pepicons-pop:sort" color="red" size="20" />
+              </template>
+              <v-list-item-title>
+                Pending
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-app-bar-nav-icon>
     </template>
 
@@ -122,7 +205,7 @@ function goToShop(id) {
     </div>
   </v-app-bar>
 
-  <v-main class="bg-gray-50 h-screen">
+  <v-main class="bg-gray-50 h-screen ">
     <v-container v-if="loading" fluid>
       <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
         <v-progress-circular
@@ -132,34 +215,54 @@ function goToShop(id) {
       </div>
     </v-container>
 
-    <v-container v-else fluid>
-      <v-list v-for="(shop, index) in filterdShops" lines="two" class="!bg-gray-50 !my-0 py-1 ">
+    <div
+      v-else-if="(!filter.length ? !(filterdShops?.length)
+        : filter === 'pending_sort' ? !pendingSortedShops?.length : !(filterdShops.filter(item => (item.place === filterPlace)))?.length)" class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]"
+    >
+      <ImagesNoData class="scale-60 " />
+    </div>
+
+    <v-container v-else fluid class="bg-gray-50 ">
+      <v-list
+        v-for="(shop, index) in (!filter.length ? (filterdShops)
+          : filter === 'pending_sort' ? pendingSortedShops : (filterdShops.filter(item => (item.place === filterPlace))))"
+        lines="two" class="!bg-gray-50 !my-0 py-1"
+      >
         <!-- <template v-for="(shop, index) in shopList"> -->
-        <v-list-item class="!py-2" @click="goToShop(shop.id)">
-          <template #prepend>
-            <v-avatar :color="formatColor(shop.type)" size="46">
-              <span class="font-bold">
-                {{ formatAvatar(shop.name) }}
+        <div>
+          <v-list-item class="!py-2" @click="goToShop(shop.id)">
+            <template #prepend>
+              <div class="relative mr-5">
+                <v-avatar :color="formatColor(shop.type)" size="46">
+                  <span class="font-bold">
+                    {{ formatAvatar(shop.name) }}
+                  </span>
+                </v-avatar>
+                <span v-if="shop?.last_update === today" class="absolute -bottom-1 -right-2">
+                  <Icon name="lets-icons:check-fill" size="22" color="green" class="" />
+                </span>
+              </div>
+            </template>
+
+            <template #title>
+              <span class="font-semibold">
+                {{ shop.name }}
               </span>
-            </v-avatar>
-          </template>
+            </template>
 
-          <template #title>
-            <span class="font-semibold">
-              {{ shop.name }}
-            </span>
-          </template>
+            <template #subtitle>
+              {{ shop.place }}
+            </template>
 
-          <template #subtitle>
-            {{ shop.place }}
-          </template>
-
-          <template #append>
-            <span class="font-semibold text-red">
-              {{ formatAsCurrency(shop.pending || 0) }}
-            </span>
-          </template>
-        </v-list-item>
+            <template #append>
+              <div class="relative">
+                <span class="font-semibold text-red">
+                  {{ formatAsCurrency(shop.pending || 0) }}
+                </span>
+              </div>
+            </template>
+          </v-list-item>
+        </div>
 
         <v-divider
           v-if="index < shopList?.length - 1"
@@ -169,8 +272,9 @@ function goToShop(id) {
         />
       </v-list>
     </v-container>
+    <CoreNavSpacer />
   </v-main>
-  <!-- <ProductsAddDialog v-model="openAddProduct" @refresh="fetchProducts" /> -->
+  <ShopsDialogAdd v-model="openAddShop" @refresh="fetchData" />
 </template>
 
 <style>
