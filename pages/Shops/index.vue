@@ -114,8 +114,8 @@ function goToShop(id) {
 
 <template>
   <v-app-bar
-    class="px-0"
-
+    class="px-0 "
+    elevation="2"
     height="60"
   >
     <!-- <template v-if="!openSearch" #prepend>
@@ -133,7 +133,7 @@ function goToShop(id) {
         <span v-if="filter === 'pending_sort'" class="capitalize opacity-50 text-sm ml-2">
           <span>
             Pending
-            <Icon name="pepicons-pop:sort" color="white" size="20" />
+            <Icon name="pepicons-pop:sort" size="20" />
           </span>
         </span>
 
@@ -195,12 +195,12 @@ function goToShop(id) {
     <div v-show="openSearch" class="w-full  mt-3 pt-2 ">
       <v-text-field
         v-model="searchName"
-        class="search_input flex-full-width px-3 my-3 opacity-80"
+        class="px-3 "
         placeholder="Search Products"
-        rounded
-        theme="light"
-        variant="solo"
         density="compact"
+        dense
+        flat
+        filled
       >
         <Icon slot="prepend-inner-icon" name="gg:search" size="18" class=" mt-[6px] mr-3" />
         <Icon slot="append-inner-icon" name="gg:close" size="18" class=" absolute  mt-[6px]  right-5 cursor-pointer" @click="openSearch = flase ; searchName = ''" />
@@ -261,7 +261,7 @@ function goToShop(id) {
 
             <template #append>
               <div class="relative flex">
-                <span class="font-semibold !text-[15px] text-red-500 bg-pink-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
+                <span class="font-semibold !text-[14px] text-red-500 bg-pink-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
                   {{ formatAsCurrency(shop.pending || 0) }}
                 </span>
               </div>

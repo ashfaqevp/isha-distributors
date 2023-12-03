@@ -25,6 +25,10 @@ function gotoReports() {
 function gotoCollection() {
   router.push({ path: '/collection' })
 }
+
+// onMounted (async () => {
+//   router.push({ path: '/shops' })
+// })
 </script>
 
 <template>
