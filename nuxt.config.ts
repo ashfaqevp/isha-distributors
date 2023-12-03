@@ -63,11 +63,24 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     'nuxt-icon',
     '@invictus.codes/nuxt-vuetify',
+    '@nuxtjs/google-fonts',
 
   ],
 
+  googleFonts: {
+    families: {
+      Poppins: true,
+    },
+    display: 'swap',
+  },
+
   vuetify: {
     vuetifyOptions: {
+    },
+    defaultAssets: {
+      font: {
+        family: 'Poppins',
+      },
     },
     moduleOptions: {
       treeshaking: true,

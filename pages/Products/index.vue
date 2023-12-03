@@ -195,6 +195,7 @@ onMounted (async () => {
         </v-col>
       </v-row>
     </v-container>
+    <CoreNavSpacer />
 
     <ProductsAddDialog v-model="openAddProduct" @refresh="fetchProducts" />
     <ProductsEditDialog v-model="openEditProduct" :product="selectedProduct" @refresh="fetchProducts" />
