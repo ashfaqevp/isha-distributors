@@ -209,7 +209,7 @@ const openCash = ref(false)
                 Credit Balance
               </p>
               <p class="py-1 font-bold text-indigo text-lg">
-                {{ formatAsCurrency(shop?.credit_limit || 5000) }}
+                {{ formatAsCurrency(shop?.credit_limit || 0) }}
               </p>
             </div>
           </div>
@@ -227,10 +227,12 @@ const openCash = ref(false)
         </div>
       </v-container>
 
+      <!-- 8f9bc4 -->
+
       <v-container v-else fluid>
         <!-- TODAY -->
         <v-card v-if="todayData?.total || todayData?.cash" class="my-3 mb-5 !rounded-[8px]">
-          <v-card-title class=" bg-sky-00 py-3">
+          <v-card-title class="  py-3 !bg-primary !text-white  ">
             <div class=" flex justify-between font-semibold ">
               Today
               <button>
@@ -239,30 +241,31 @@ const openCash = ref(false)
             </div>
           </v-card-title>
 
-          <hr class=" border-[1px]   w-full">
+          <!-- <hr class=" border-[1px]   w-full"> -->
 
-          <v-card-text>
-            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[10px] ">
+          <v-card-text class="px-0 py-0">
+            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-sm  !rounded-[4px] !border-b-[0px]    ">
               <v-table
                 fixed-header
               >
                 <thead class="">
                   <tr class="">
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold flex items-center gap-x-1.5">
+                    <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                       <span>
                         Product
                       </span>
                     </th>
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold !w-fit">
+                    <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                       <span>
                         Qnty
                       </span>
                     </th>
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+                    <th class="text-left !bg-primary text-white !font-semibold">
                       Amount
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   <tr
                     v-for="(item, index) in todayData.purchaseList"
@@ -305,7 +308,47 @@ const openCash = ref(false)
               </v-table>
             </div>
 
-            <div class="w-full justify-end flex">
+            <div class="w-full flex h-fit  !border-t-[1px]  !border-b-[1px] ">
+              <div class="px-2 py-1  !border-r-[1px] !border-b-[1px]] w-full flex flex-col items-center ">
+                <p class="text-sm  text-lefst px-2 text-gray ">
+                  OB :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold !text-[15px]  text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency(todayData?.total || 0) }}
+                </p>
+              </div>
+
+              <div class="px-2 py-1   w-full flex flex-col items-center ">
+                <p class=" px-2 text-gray py-1">
+                  Total :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2 rounded-[16px] ">
+                  {{ formatAsCurrency(shop?.pending || 0 + ((todayData?.cash || 0 - todayData?.total || 0) || 0)) }}
+                </p>
+              </div>
+            </div>
+
+            <div class="w-full flex h-fit   ">
+              <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
+                <p class=" text-lefst px-2 text-gray ">
+                  Collection :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency(todayData?.cash) }}
+                </p>
+              </div>
+
+              <div class="px-2 py-1  w-full flex flex-col items-center ">
+                <p class=" px-2 text-gray ">
+                  Pending :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency(shop?.pending) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- <div class="w-full justify-end flex">
               <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
                 <span class="flex justify-between">
                   <spna>
@@ -343,7 +386,7 @@ const openCash = ref(false)
                   </span>
                 </span>
               </div>
-            </div>
+            </div> -->
           </v-card-text>
         </v-card>
 
@@ -368,17 +411,17 @@ const openCash = ref(false)
               >
                 <thead class="">
                   <tr class="">
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold flex items-center gap-x-1.5">
+                    <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                       <span>
                         Product
                       </span>
                     </th>
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold !w-fit">
+                    <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                       <span>
                         Qnty
                       </span>
                     </th>
-                    <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+                    <th class="text-left !bg-primary text-white !font-semibold">
                       Amount
                     </th>
                   </tr>
