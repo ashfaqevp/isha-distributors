@@ -95,7 +95,7 @@ function goBack() {
 <template>
   <v-app-bar
     class="px-0 !z-20 "
-    color="primary"
+    height="60"
   >
     <!-- <template #prepend>
       <v-app-bar-nav-icon class="mx-0">
@@ -105,7 +105,9 @@ function goBack() {
 
     <div class="flex ml-6 w-full">
       <v-app-bar-title>
-        {{ 'Collection' }}
+        <span class=" font-semibold text-2xl">
+          Collection
+        </span>
         <span class="mx-2">
           <Icon v-if="collectionFilter === 'direct'" name="tdesign:undertake-transaction" color="white" size="24" />
           <Icon v-else-if="collectionFilter === 'online'" name="fa-brands:google-pay" size="42" color="white" />
@@ -115,11 +117,11 @@ function goBack() {
 
     <template #append>
       <v-app-bar-nav-icon>
-        <Icon name="ic:outline-history" size="28" />
+        <Icon name="ic:outline-history" size="24" />
       </v-app-bar-nav-icon>
       <v-app-bar-nav-icon>
         <v-button>
-          <Icon name="mingcute:filter-line" size="28" />
+          <Icon name="mingcute:filter-line" size="24" />
         </v-button>
 
         <v-menu activator="parent" width="150px" class="!w-[50px]">
@@ -171,38 +173,40 @@ function goBack() {
             fixed-header
             :height="tableHeight > (screenHeight - 465) ? `${screenHeight - 465}px` : ''"
           >
-            <thead class="">
+            <thead class="py-0">
               <tr class="">
-                <th class="text-left !bg-[#1f1e1c] text-white !font-semibold">
+                <th class="text-left text-sm !bg-primary text-white !font-semibold">
                   No
                 </th>
-                <th class="text-left !bg-[#1f1e1c] text-white !font-semibold">
+                <th class="text-left text-sm  !bg-primary text-white !font-semibold">
                   Shop
                 </th>
-                <th v-if=" collectionFilter === 'all'" class="text-left !bg-[#1f1e1c] text-white !font-semibold">
+                <th v-if=" collectionFilter === 'all'" class="text-left text-sm  !bg-primary text-white !font-semibold">
                   Method
                 </th>
-                <th v-else-if="collectionFilter === 'online'" class="text-left !bg-[#1f1e1c] text-white !font-semibold">
+                <th v-else-if="collectionFilter === 'online'" class="text-left text-sm  !bg-primary text-white !font-semibold">
                   Tran ID
                 </th>
-                <th class="text-end !bg-[#1f1e1c] text-white !font-semibold">
+                <th class="text-end text-sm  !bg-primary text-white !font-semibold">
                   Amount
                 </th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody class="text-sm">
               <tr
                 v-for="(item, index) in (collectionFilter !== 'all'
                   ? (collectionList.filter(item => item.method === (collectionFilter === 'direct' ? 'direct' : 'online'))) : collectionList)"
                 :key="item.id"
                 class="w-full !py-10 !h-10 text-sm"
               >
-                <td>{{ index + 1 }}</td>
-                <td class="w-fit text-sm">
+                <td class="text-xs">
+                  {{ index + 1 }}
+                </td>
+                <td class="w-fit text-xs">
                   {{ item.shop_name }}
                 </td>
-                <td v-if="collectionFilter === 'all' || collectionFilter === 'online' " class="text-sm capitalize text-start ">
+                <td v-if="collectionFilter === 'all' || collectionFilter === 'online' " class="text-xs capitalize text-start ">
                   <div v-if="collectionFilter === 'all'" class="text-center">
                     <Icon v-if=" item.method === 'direct'" name="tdesign:undertake-transaction" color="green" size="20" />
                     <Icon v-else name="logos:google-pay" size="32" class="font-bold text-black" />
@@ -212,7 +216,7 @@ function goBack() {
                   </div>
                 </td>
 
-                <td class="text-end text-sm  !min-w-[120px]">
+                <td class="text-end text-xs  !min-w-[120px]">
                   {{ formatAsCurrency(item.cash) }}
                 </td>
               </tr>
