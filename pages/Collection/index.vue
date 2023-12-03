@@ -97,13 +97,13 @@ function goBack() {
     class="px-0 !z-20 "
     color="primary"
   >
-    <template #prepend>
+    <!-- <template #prepend>
       <v-app-bar-nav-icon class="mx-0">
         <Icon name="eva:arrow-back-outline" size="22" @click="goBack()" />
       </v-app-bar-nav-icon>
-    </template>
+    </template> -->
 
-    <div class="flex justify-left w-full">
+    <div class="flex ml-6 w-full">
       <v-app-bar-title>
         {{ 'Collection' }}
         <span class="mx-2">
@@ -169,7 +169,7 @@ function goBack() {
         <div v-else-if="collectionList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
           <v-table
             fixed-header
-            :height="tableHeight > (screenHeight - 400) ? `${screenHeight - 400}px` : ''"
+            :height="tableHeight > (screenHeight - 465) ? `${screenHeight - 465}px` : ''"
           >
             <thead class="">
               <tr class="">
@@ -221,7 +221,7 @@ function goBack() {
         </div>
 
         <div v-else class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]">
-          <ImagesNoData class="scale-50 " />
+          <ImagesNoData class="scale-40 " />
         </div>
 
         <div v-if="!loading && collectionList?.length" class=" py-3 text-end align-end flex flex-col gap-y-1">
@@ -237,10 +237,10 @@ function goBack() {
             </span>
             <b class="font-semibold opacity-80 min-w-[80px]"> {{ formatAsCurrency(totalCollection.online) }}</b>
           </div>
-          <hr class="h-[1px] w-50 bg- my-1">
-          <div>
+          <hr class="h-[1px] w-50 bg- my-1 ">
+          <div class="">
             Total:
-            <b> {{ formatAsCurrency(totalCollection.total) }}</b>
+            <b class=""> {{ formatAsCurrency(totalCollection.total) }}</b>
           </div>
         </div>
       </div>

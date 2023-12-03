@@ -101,8 +101,10 @@ const pendingSortedShops = computed(() => {
 })
 
 onMounted (async () => {
+  loading.value = true
   await fetchData()
   await fetchPlaces()
+  loading.value = false
 })
 
 function goToShop(id) {
@@ -115,15 +117,15 @@ function goToShop(id) {
     class="px-0"
     color="primary"
   >
-    <template v-if="!openSearch" #prepend>
+    <!-- <template v-if="!openSearch" #prepend>
       <v-app-bar-nav-icon class="mx-0">
         <Icon name="eva:arrow-back-outline" size="22" @click="router.back()" />
       </v-app-bar-nav-icon>
-    </template>
+    </template> -->
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class="font-semibold">
+        <span class="font-semibold ml-6">
           Shops
         </span>
 
@@ -255,8 +257,8 @@ function goToShop(id) {
             </template>
 
             <template #append>
-              <div class="relative">
-                <span class="font-semibold text-red">
+              <div class="relative flex">
+                <span class="font-semibold text-red bg-red-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
                   {{ formatAsCurrency(shop.pending || 0) }}
                 </span>
               </div>
