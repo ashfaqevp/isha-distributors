@@ -97,13 +97,13 @@ function goBack() {
     class="px-0 !z-20 "
     color="primary"
   >
-    <template #prepend>
+    <!-- <template #prepend>
       <v-app-bar-nav-icon class="mx-0">
         <Icon name="eva:arrow-back-outline" size="22" @click="goBack()" />
       </v-app-bar-nav-icon>
-    </template>
+    </template> -->
 
-    <div class="flex justify-left w-full">
+    <div class="flex ml-6 w-full">
       <v-app-bar-title>
         {{ 'Collection' }}
         <span class="mx-2">
@@ -221,7 +221,7 @@ function goBack() {
         </div>
 
         <div v-else class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]">
-          <ImagesNoData class="scale-50 " />
+          <ImagesNoData class="scale-40 " />
         </div>
 
         <div v-if="!loading && collectionList?.length" class=" py-3 text-end align-end flex flex-col gap-y-1">

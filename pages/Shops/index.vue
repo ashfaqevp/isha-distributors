@@ -117,15 +117,15 @@ function goToShop(id) {
     class="px-0"
     color="primary"
   >
-    <template v-if="!openSearch" #prepend>
+    <!-- <template v-if="!openSearch" #prepend>
       <v-app-bar-nav-icon class="mx-0">
         <Icon name="eva:arrow-back-outline" size="22" @click="router.back()" />
       </v-app-bar-nav-icon>
-    </template>
+    </template> -->
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class="font-semibold">
+        <span class="font-semibold ml-6">
           Shops
         </span>
 
