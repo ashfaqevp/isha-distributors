@@ -26,7 +26,7 @@ function navigate(route) {
           <Icon :name=" selectedItem === 2 ? 'icon-park-solid:shop' : 'icon-park-outline:shop'" :class="selectedItem === 2 ? '!text-primary text-[30px]' : 'text-[22px]'" />
         </v-btn>
 
-        <v-btn :active="selectedItem === 3" @click="navigate('/reports')">
+        <v-btn :active="selectedItem === 3" @click="navigate('/stocks')">
           <Icon :name=" selectedItem === 3 ? 'material-symbols:list-alt' : 'material-symbols:list-alt-outline'" :class="selectedItem === 3 ? '!text-primary text-[32px]' : 'text-[26px]'" />
         </v-btn>
 
