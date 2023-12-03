@@ -152,19 +152,20 @@ const openCash = ref(false)
 <template>
   <div class="relative">
     <v-app-bar
-      class="px-0 !z-20 pb-0"
-      elevation="2"
+      class="px-0 !z-20 pb-10"
+      elevation="5"
+      height="65"
     >
       <template #prepend>
         <v-app-bar-nav-icon class="mx-0">
-          <Icon name="eva:arrow-back-outline" size="26" @click="gotoShops" />
+          <Icon name="eva:arrow-back-outline" size="22" @click="gotoShops" />
         </v-app-bar-nav-icon>
       </template>
 
       <div class="flex justify-left w-full">
         <v-app-bar-title>
-          <v-avatar :color="formatColor(shop?.type)" size="42">
-            <span class="font-bold text-[18px]">
+          <v-avatar :color="formatColor(shop?.type)" size="46">
+            <span class="font-bold">
               {{ formatAvatar(shop?.name || '') }}
             </span>
           </v-avatar>
@@ -181,7 +182,15 @@ const openCash = ref(false)
       </template>
     </v-app-bar>
 
-    <!-- <div class="z-30 sticky top-[70px] px-4 ">
+    <div class="z-30 sticky top-[70px] px-4 ">
+      <!-- <div class="bg-pink-100 mb-10 w-[130px] flex flex-col items-center py-2 rounded-[60px]">
+        <p class="font-semibold text-gray-400 text-sm ">
+          Pending
+        </p>
+        <p class="py-1 font-bold text-red-600 text-lg  rounded-full">
+          {{ formatAsCurrency(shop?.pending || 0) }}
+        </p>
+      </div> -->
       <v-card elevation="5" rounded="10" class="!border-[0px] border-primary !rounded-[8px]">
         <v-card-text>
           <div class="b!h-[100px] w-full flex items-center">
@@ -206,7 +215,7 @@ const openCash = ref(false)
           </div>
         </v-card-text>
       </v-card>
-    </div> -->
+    </div>
 
     <v-main class="bg-gray-50 h-full">
       <v-container v-if="loading" fluid>
@@ -221,33 +230,8 @@ const openCash = ref(false)
       <!-- 8f9bc4 -->
 
       <v-container v-else fluid>
-        <v-card rounded="10" class="!border-[0px] border-primary !rounded-[8px] !mb-2">
-          <v-card-text>
-            <div class="b!h-[100px] w-full flex items-center">
-              <div class="w-full !pr-2 text-center ">
-                <p class="text-xs text-slate-500 my-1">
-                  Pending
-                </p>
-                <p class="py-1 font-bold text-red-600 text-[16px] ml-2  rounded-full">
-                  {{ formatAsCurrency(shop?.pending || 0) }}
-                </p>
-              </div>
-              <div class="h-[70px] border-r-[1px] border-gray-300" />
-
-              <div class=" w-full  align-end text-center ">
-                <p class="text-xs text-slate-500 py-1">
-                  Credit Balance
-                </p>
-                <p class="py-1 font-bold text-indigo  text-[16px] ml-2">
-                  {{ formatAsCurrency(shop?.credit_limit || 0) }}
-                </p>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-
         <!-- TODAY -->
-        <v-card v-if="todayData?.total || todayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
+        <v-card v-if="todayData?.total || todayData?.cash" class="my-3 mb-5 !rounded-[8px]">
           <v-card-title class="  py-3 !bg-primary !text-white  ">
             <div class=" flex justify-between font-semibold ">
               Today
@@ -260,27 +244,23 @@ const openCash = ref(false)
           <!-- <hr class=" border-[1px]   w-full"> -->
 
           <v-card-text class="px-0 py-0">
-            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-sm   !border-b-[0px]    ">
+            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-sm  !rounded-[4px] !border-b-[0px]    ">
               <v-table
                 fixed-header
               >
                 <thead class="">
                   <tr class="">
-                    <th class="text-left text-sm !bg-primary text-white !font-semibold !w-fit">
-                      No
-                    </th>
-
-                    <th class="text-left  text-sm !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
+                    <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                       <span>
                         Product
                       </span>
                     </th>
-                    <th class="text-left text-sm !bg-primary text-white text-center !font-semibold !w-fit">
+                    <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                       <span>
                         Qnty
                       </span>
                     </th>
-                    <th class="text-end pr-7 text-sm  text-white !font-semibold !bg-primary">
+                    <th class="text-left !bg-primary text-white !font-semibold">
                       Amount
                     </th>
                   </tr>
@@ -292,25 +272,17 @@ const openCash = ref(false)
                     :key="item.id"
                     class="w-full"
                   >
-                    <td class="text-xs text-center   ">
-                      <span class="!w-fit">
-                        {{ index + 1 }}
-                      </span>
-                    </td>
-
-                    <td class="text-xs flex items-center  ">
+                    <td class="text-sm flex items-center  ">
                       <span class="w-full">
                         {{ item.name }}
                       </span>
                     </td>
-                    <td class="text-xs w-fit gap-x-3 ">
-                      <span class="mr-3"> {{ item.qnty }}</span>
+                    <td class="text-sm w-fit gap-x-3 ">
+                      <span class="font-semibold mr-3"> {{ item.qnty }}</span>
                       <span class="font-100 !text-xs text-gray-400">x{{ item.price }}</span>
                     </td>
-                    <td class=" text-xs  !min-w-[130px] text-end  items-end relative">
-                      <span class="pr-3">
-                        {{ formatAsCurrency(item.total) }}
-                      </span>
+                    <td class="text-start text-sm  !min-w-[130px] items-end relative">
+                      {{ formatAsCurrency(item.total) }}
 
                       <span class=" absolute right-1 text-end ">
                         <button>
@@ -338,7 +310,7 @@ const openCash = ref(false)
 
             <div class="w-full flex h-fit  !border-t-[1px]  !border-b-[1px] ">
               <div class="px-2 py-1  !border-r-[1px] !border-b-[1px]] w-full flex flex-col items-center ">
-                <p class="  text-slate-500 px-2 text-gray text-xs ">
+                <p class="text-sm  text-lefst px-2 text-gray ">
                   OB :
                 </p>
                 <p class="!bg-pink-00 w-fit font-semibold !text-[15px]  text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
@@ -347,10 +319,10 @@ const openCash = ref(false)
               </div>
 
               <div class="px-2 py-1   w-full flex flex-col items-center ">
-                <p class=" px-2 text-slate-500 py-1 text-xs">
+                <p class=" px-2 text-gray py-1">
                   Total :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2  rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2 rounded-[16px] ">
                   {{ formatAsCurrency(shop?.pending || 0 + ((todayData?.cash || 0 - todayData?.total || 0) || 0)) }}
                 </p>
               </div>
@@ -358,7 +330,7 @@ const openCash = ref(false)
 
             <div class="w-full flex h-fit   ">
               <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
-                <p class="  px-2 text-slate-500 text-xs ">
+                <p class=" text-lefst px-2 text-gray ">
                   Collection :
                 </p>
                 <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
@@ -367,8 +339,8 @@ const openCash = ref(false)
               </div>
 
               <div class="px-2 py-1  w-full flex flex-col items-center ">
-                <p class=" px-2 text-slate-500 text-xs ">
-                  Balance :
+                <p class=" px-2 text-gray ">
+                  Pending :
                 </p>
                 <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(shop?.pending) }}
@@ -376,7 +348,7 @@ const openCash = ref(false)
               </div>
             </div>
 
-            <!-- <div class="w-full justify-end flex px-5 pb-5">
+            <!-- <div class="w-full justify-end flex">
               <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
                 <span class="flex justify-between">
                   <spna>
@@ -420,40 +392,36 @@ const openCash = ref(false)
 
         <!-- LASTDAY -->
 
-        <v-card v-if="todayData?.total || todayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
-          <v-card-title class="  py-3 !bg-primary !text-white  ">
-            <div class=" flex justify-between font-semibold ">
-              {{ lastPurchaseDate }}
-              <button>
-                <Icon name="ic:baseline-share" class="" />
-              </button>
-            </div>
-          </v-card-title>
+        <v-card v-if="lastdayData?.total || lastdayData?.cash" class="mt-3">
+          <v-card-item>
+            <v-card-title>
+              <div class=" flex justify-between">
+                {{ lastPurchaseDate }}
+                <button>
+                  <Icon name="ic:baseline-share" class="" />
+                </button>
+              </div>
+            </v-card-title>
+          </v-card-item>
 
-          <!-- <hr class=" border-[1px]   w-full"> -->
-
-          <v-card-text class="px-0 py-0">
-            <div v-if="lastdayData?.purchaseList?.length" class="!h-full !shadow-sm   !border-b-[0px]    ">
+          <v-card-text>
+            <div v-if="lastdayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[5px] ">
               <v-table
                 fixed-header
               >
                 <thead class="">
                   <tr class="">
-                    <th class="text-left text-sm !bg-primary text-white !font-semibold !w-fit">
-                      No
-                    </th>
-
-                    <th class="text-left  text-sm !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
+                    <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                       <span>
                         Product
                       </span>
                     </th>
-                    <th class="text-left text-sm !bg-primary text-white text-center !font-semibold !w-fit">
+                    <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                       <span>
                         Qnty
                       </span>
                     </th>
-                    <th class="text-end text-sm !bg-primary text-white !font-semibold">
+                    <th class="text-left !bg-primary text-white !font-semibold">
                       Amount
                     </th>
                   </tr>
@@ -464,22 +432,16 @@ const openCash = ref(false)
                     :key="item.id"
                     class="w-full"
                   >
-                    <td class="text-xs text-center   ">
-                      <span class="!w-fit ">
-                        {{ index + 1 }}
-                      </span>
-                    </td>
-
-                    <td class="text-xs flex items-center  ">
+                    <td class="text-sm flex items-center  ">
                       <span class="w-full">
                         {{ item.name }}
                       </span>
                     </td>
-                    <td class="text-xs w-fit gap-x-3 ">
-                      <span class="mr-3"> {{ item.qnty }}</span>
+                    <td class="text-sm w-fit gap-x-3 ">
+                      <span class="font-semibold mr-3"> {{ item.qnty }}</span>
                       <span class="font-100 !text-xs text-gray-400">x{{ item.price }}</span>
                     </td>
-                    <td class="text-end text-xs  !min-w-[130px] items-end relative">
+                    <td class=" ext-start text-sm  !min-w-[100px] items-end relative  ">
                       {{ formatAsCurrency(item.total) }}
                     </td>
                   </tr>
@@ -487,43 +449,43 @@ const openCash = ref(false)
               </v-table>
             </div>
 
-            <div class="w-full flex h-fit  !border-t-[1px]  !border-b-[1px] ">
-              <div class="px-2 py-1  !border-r-[1px] !border-b-[1px]] w-full flex flex-col items-center ">
-                <p class="  text-slate-500 px-2 text-gray text-xs ">
-                  OB :
-                </p>
-                <p class="!bg-pink-00 w-fit font-semibold !text-[15px]  text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
-                  {{ formatAsCurrency(((shop.pending + ((todayData?.cash - todayData?.total) || 0)) + lastdayData.cash - lastdayData.total || 0)) }}
-                </p>
-              </div>
+            <div class="w-full justify-end flex">
+              <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
+                <span class="flex justify-between">
+                  <spna>
+                    Total :
+                  </spna>
+                  <span>
+                    {{ formatAsCurrency(lastdayData.total || 0) }}
+                  </span>
+                </span>
 
-              <div class="px-2 py-1   w-full flex flex-col items-center ">
-                <p class=" px-2 text-slate-500 py-1 text-xs">
-                  Total :
-                </p>
-                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2  rounded-[16px] ">
-                  {{ formatAsCurrency(lastdayData.total || 0) }}
-                </p>
-              </div>
-            </div>
+                <span class="flex justify-between">
+                  <spna>
+                    OB :
+                  </spna>
+                  <span>
+                    {{ formatAsCurrency(((shop.pending + ((todayData?.cash - todayData?.total) || 0)) + lastdayData.cash - lastdayData.total || 0)) }}
+                  </span>
+                </span>
 
-            <div class="w-full flex h-fit   ">
-              <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
-                <p class="  px-2 text-slate-500 text-xs ">
-                  Collection :
-                </p>
-                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
-                  {{ formatAsCurrency(lastdayData?.cash || 0) }}
-                </p>
-              </div>
+                <span class="flex justify-between">
+                  <spna>
+                    Cash :
+                  </spna>
+                  <span class="text-green font-semibold">
+                    {{ formatAsCurrency(lastdayData?.cash || 0) }}
+                  </span>
+                </span>
 
-              <div class="px-2 py-1  w-full flex flex-col items-center ">
-                <p class=" px-2 text-slate-500 text-xs ">
-                  Balance :
-                </p>
-                <p class="w-fit font-semibold text-[15px] text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
-                  {{ formatAsCurrency(((shop.pending + ((todayData.cash - todayData.total) || 0)))) }}
-                </p>
+                <span class="flex justify-between">
+                  <spna>
+                    Balance :
+                  </spna>
+                  <span class="text-red font-semibold">
+                    {{ formatAsCurrency(((shop.pending + ((todayData.cash - todayData.total) || 0)))) }}
+                  </span>
+                </span>
               </div>
             </div>
 
