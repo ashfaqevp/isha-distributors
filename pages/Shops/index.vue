@@ -2,7 +2,7 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-const { formatAsCurrency, today } = useUtils()
+const { formatAsCurrency, today, formatAvatar, formatColor } = useUtils()
 const router = useRouter()
 
 const openAddShop = ref(false)
@@ -26,36 +26,6 @@ async function fetchData() {
   }
   catch (error) {
     console.error('Error fetching data:', error)
-  }
-}
-
-function formatAvatar(inputString) {
-  const words = inputString.split(' ')
-  const formattedWords = words.map((word) => {
-    const firstTwoLetters = words.length === 1 ? word.slice(0, 2) : word.slice(0, 1)
-    const capitalizedLetters = firstTwoLetters.toUpperCase()
-    return capitalizedLetters
-  })
-  const formattedString = formattedWords.join('')
-  return formattedString
-}
-
-function formatColor(input) {
-  switch (input) {
-    case 'normal' :
-      return '#1BAFD0'
-
-    case 'discount':
-      return '#6967CE'
-
-    case 'special' :
-      return '#FFB900'
-
-    case 'dealer':
-      return '#FD636B'
-
-    default:
-      return '#9AA0A6'
   }
 }
 
@@ -126,7 +96,7 @@ function goToShop(id) {
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class=" font-bold text-xl ml-6 text-[#111111]">
+        <span class=" font-bold text-xl ml-6 ">
           Shops
         </span>
 

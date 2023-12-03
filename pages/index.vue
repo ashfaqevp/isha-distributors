@@ -26,6 +26,8 @@ function gotoCollection() {
   router.push({ path: '/collection' })
 }
 
+router.push({ path: '/shops' })
+
 // onMounted (async () => {
 //   router.push({ path: '/shops' })
 // })
