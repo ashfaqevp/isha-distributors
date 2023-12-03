@@ -208,7 +208,7 @@ function goToShop(id) {
   </v-app-bar>
 
   <v-main class="bg-gray-50 h-screen ">
-    <v-container v-if="loading" fluid>
+    <v-container v-if="loading" fluid class="bg-gray-50">
       <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
         <v-progress-circular
           indeterminate
@@ -282,8 +282,5 @@ function goToShop(id) {
 <style>
 .v-divider {
   border-color: #000000 !important;
-}
- .v-label {
-    font-size: 2px;
 }
 </style>
