@@ -101,8 +101,10 @@ const pendingSortedShops = computed(() => {
 })
 
 onMounted (async () => {
+  loading.value = true
   await fetchData()
   await fetchPlaces()
+  loading.value = false
 })
 
 function goToShop(id) {
@@ -255,8 +257,8 @@ function goToShop(id) {
             </template>
 
             <template #append>
-              <div class="relative">
-                <span class="font-semibold text-red">
+              <div class="relative flex">
+                <span class="font-semibold text-red bg-red-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
                   {{ formatAsCurrency(shop.pending || 0) }}
                 </span>
               </div>

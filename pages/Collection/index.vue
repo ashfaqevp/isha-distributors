@@ -169,7 +169,7 @@ function goBack() {
         <div v-else-if="collectionList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
           <v-table
             fixed-header
-            :height="tableHeight > (screenHeight - 400) ? `${screenHeight - 400}px` : ''"
+            :height="tableHeight > (screenHeight - 465) ? `${screenHeight - 465}px` : ''"
           >
             <thead class="">
               <tr class="">
@@ -237,10 +237,10 @@ function goBack() {
             </span>
             <b class="font-semibold opacity-80 min-w-[80px]"> {{ formatAsCurrency(totalCollection.online) }}</b>
           </div>
-          <hr class="h-[1px] w-50 bg- my-1">
-          <div>
+          <hr class="h-[1px] w-50 bg- my-1 ">
+          <div class="">
             Total:
-            <b> {{ formatAsCurrency(totalCollection.total) }}</b>
+            <b class=""> {{ formatAsCurrency(totalCollection.total) }}</b>
           </div>
         </div>
       </div>

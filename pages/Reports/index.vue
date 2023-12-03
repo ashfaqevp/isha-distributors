@@ -157,7 +157,7 @@ const totalPurchase = computed(() => {
 const totalPending = computed(() => {
   let pending = 0
   shopList.value.forEach((shop) => {
-    pending = pending + (shop?.pending || 0)
+    pending += Number(shop?.pending || 0)
   })
   return pending || 0
 })
@@ -324,7 +324,7 @@ onMounted (async () => {
             <v-table
               fixed-header
               :loading="true"
-              :height="tableHeight > (screenHeight - 470) ? `${screenHeight - 470}px` : ''"
+              :height="tableHeight > (screenHeight - 440) ? `${screenHeight - 440}px` : ''"
             >
               <thead class="text-xs ">
                 <tr class="">
@@ -383,7 +383,7 @@ onMounted (async () => {
     </v-main>
 
     <!-- BOTTOM ACTION BUTTON -->
-    <div class=" !fixed !bottom-[16px] flex  flex-col px-5 !h-150 w-full  ">
+    <div class=" !fixed !bottom-[70px] flex  flex-col px-5 !h-150 w-full  ">
       <div class="grid grid-cols-9  gap-x-2 mb-3 ">
         <v-card
           rounded="md"
