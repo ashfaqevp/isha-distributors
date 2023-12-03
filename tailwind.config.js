@@ -19,6 +19,12 @@ module.exports = {
         dark: '#FF5733',
         light: '#007BFF',
       },
+      fontWeight: {
+        light: 300,
+        normal: 400,
+        semibold: 600,
+        bold: 700,
+      },
     },
   },
   plugins: [],

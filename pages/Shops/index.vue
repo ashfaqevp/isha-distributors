@@ -115,7 +115,8 @@ function goToShop(id) {
 <template>
   <v-app-bar
     class="px-0"
-    color="primary"
+
+    height="60"
   >
     <!-- <template v-if="!openSearch" #prepend>
       <v-app-bar-nav-icon class="mx-0">
@@ -125,7 +126,7 @@ function goToShop(id) {
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class="font-semibold ml-6">
+        <span class=" font-bold text-xl ml-6 text-[#111111]">
           Shops
         </span>
 
@@ -224,7 +225,7 @@ function goToShop(id) {
       <ImagesNoData class="scale-60 " />
     </div>
 
-    <v-container v-else fluid class="bg-gray-50 ">
+    <v-container v-else fluid class="bg-gray-50 !px-1 !py-1 ">
       <v-list
         v-for="(shop, index) in (!filter.length ? (filterdShops)
           : filter === 'pending_sort' ? pendingSortedShops : (filterdShops.filter(item => (item.place === filterPlace))))"
@@ -247,18 +248,20 @@ function goToShop(id) {
             </template>
 
             <template #title>
-              <span class="font-semibold">
+              <span class="font-semibold text-[15px]">
                 {{ shop.name }}
               </span>
             </template>
 
             <template #subtitle>
-              {{ shop.place }}
+              <span class=" capitalize">
+                {{ shop.place }}
+              </span>
             </template>
 
             <template #append>
               <div class="relative flex">
-                <span class="font-semibold text-red bg-red-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
+                <span class="font-semibold !text-[15px] text-red-500 bg-pink-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
                   {{ formatAsCurrency(shop.pending || 0) }}
                 </span>
               </div>

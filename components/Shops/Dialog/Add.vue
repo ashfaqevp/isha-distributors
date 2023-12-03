@@ -89,7 +89,7 @@ onMounted (async () => {
   >
     <v-card class="w-full">
       <v-card-title>
-        <div class=" flex gap-x-3 mt-3 ">
+        <div class=" flex gap-x-3 mt-2 font-semibold ">
           <button>
             <Icon name="eva:arrow-back-outline" size="24" @click="onCancel" />
           </button>
@@ -177,6 +177,7 @@ onMounted (async () => {
                   variant="outlined"
                   block
                   height="44"
+                  class="!font-semibold"
                   :disabled="loading"
                   @click="onCancel"
                 >
@@ -191,6 +192,7 @@ onMounted (async () => {
                   color="primary"
                   block
                   height="44"
+                  class="!font-semibold"
                   :loading="loading"
                   @click="addShop()"
                 >
@@ -203,15 +205,4 @@ onMounted (async () => {
       </v-card-text>
     </v-card>
   </v-dialog>
-
-  <v-snackbar
-    v-model="toast.value"
-    class="z-100 opacity-90"
-    :timeout="2000"
-    :color=" toast?.status === 'success' ? 'success' : 'error'"
-    absolute
-    top
-  >
-    <p>{{ toast?.message }}</p>
-  </v-snackbar>
 </template>
