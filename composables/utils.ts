@@ -14,6 +14,36 @@ export function useUtils() {
     return formattedAmount
   }
 
+  function formatColor(input) {
+    switch (input) {
+      case 'normal' :
+        return '#1BAFD0'
+
+      case 'discount':
+        return '#6967CE'
+
+      case 'special' :
+        return '#FFB900'
+
+      case 'dealer':
+        return '#FD636B'
+
+      default:
+        return '#9AA0A6'
+    }
+  }
+
+  function formatAvatar(inputString) {
+    const words = inputString.split(' ')
+    const formattedWords = words.map((word) => {
+      const firstTwoLetters = words.length === 1 ? word.slice(0, 2) : word.slice(0, 1)
+      const capitalizedLetters = firstTwoLetters.toUpperCase()
+      return capitalizedLetters
+    })
+    const formattedString = formattedWords.join('')
+    return formattedString
+  }
+
   const capitalize = (string: string) => {
     if (!string)
       return
@@ -24,7 +54,8 @@ export function useUtils() {
     productCategories,
     shopCategories,
     today,
-
+    formatAvatar,
+    formatColor,
     capitalize,
     formatAsCurrency,
   }

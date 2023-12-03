@@ -5,7 +5,7 @@ import moment from 'moment'
 const { db } = useFirebaseStore()
 const router = useRouter()
 
-const { formatAsCurrency } = useUtils()
+const { formatAsCurrency, formatColor, formatAvatar } = useUtils()
 
 const route = useRoute()
 const { id } = route?.query
@@ -153,8 +153,8 @@ const openCash = ref(false)
   <div class="relative">
     <v-app-bar
       class="px-0 !z-20 pb-10"
-      color="primary"
-      density="default"
+      elevation="5"
+      height="65"
     >
       <template #prepend>
         <v-app-bar-nav-icon class="mx-0">
@@ -164,7 +164,14 @@ const openCash = ref(false)
 
       <div class="flex justify-left w-full">
         <v-app-bar-title>
-          {{ shop?.name || '' }}
+          <v-avatar :color="formatColor(shop?.type)" size="46">
+            <span class="font-bold">
+              {{ formatAvatar(shop?.name || '') }}
+            </span>
+          </v-avatar>
+          <span class=" font-bold text-xl ml-2 ">
+            {{ shop?.name || '' }}
+          </span>
         </v-app-bar-title>
       </div>
 
@@ -175,15 +182,23 @@ const openCash = ref(false)
       </template>
     </v-app-bar>
 
-    <div class="z-30 sticky top-[70px] px-4">
-      <v-card class=" ">
+    <div class="z-30 sticky top-[70px] px-4 ">
+      <!-- <div class="bg-pink-100 mb-10 w-[130px] flex flex-col items-center py-2 rounded-[60px]">
+        <p class="font-semibold text-gray-400 text-sm ">
+          Pending
+        </p>
+        <p class="py-1 font-bold text-red-600 text-lg  rounded-full">
+          {{ formatAsCurrency(shop?.pending || 0) }}
+        </p>
+      </div> -->
+      <v-card elevation="5" rounded="10" class="!border-[0px] border-primary !rounded-[8px]">
         <v-card-text>
           <div class="b!h-[100px] w-full flex items-center">
             <div class="w-full !pr-2 text-center ">
-              <p class="font-semibold text-gray-400 text-sm">
+              <p class="font-semibold text-gray-400 text-sm ">
                 Pending
               </p>
-              <p class="py-1 font-bold text-red-600 text-lg">
+              <p class="py-1 font-bold text-red-600 text-lg  rounded-full">
                 {{ formatAsCurrency(shop?.pending || 0) }}
               </p>
             </div>
@@ -214,20 +229,20 @@ const openCash = ref(false)
 
       <v-container v-else fluid>
         <!-- TODAY -->
-        <v-card v-if="todayData?.total || todayData?.cash" class="my-3 mb-5">
-          <v-card-item>
-            <v-card-title>
-              <div class=" flex justify-between">
-                Today
-                <button>
-                  <Icon name="ic:baseline-share" class="" />
-                </button>
-              </div>
-            </v-card-title>
-          </v-card-item>
+        <v-card v-if="todayData?.total || todayData?.cash" class="my-3 mb-5 !rounded-[8px]">
+          <v-card-title class=" bg-sky-00 py-3">
+            <div class=" flex justify-between font-semibold ">
+              Today
+              <button>
+                <Icon name="ic:baseline-share" class="" />
+              </button>
+            </div>
+          </v-card-title>
+
+          <hr class=" border-[1px]   w-full">
 
           <v-card-text>
-            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[5px] ">
+            <div v-if="todayData?.purchaseList?.length" class="!h-full !shadow-md !rounded-[10px] ">
               <v-table
                 fixed-header
               >
@@ -447,8 +462,9 @@ const openCash = ref(false)
         v-model="fab"
         color="blue darken-2"
         dark
-        class="!rounded-full my-3"
-        height="62"
+        rounded
+        size="58"
+        class="!rounded-full my-3 "
       >
         <Icon name="fluent:add-12-filled" size="24" />
 

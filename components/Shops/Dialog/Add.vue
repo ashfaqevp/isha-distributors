@@ -97,7 +97,8 @@ onMounted (async () => {
         </div>
       </v-card-title>
 
-      <v-divider class="my-2" />
+      <hr class=" border-[1px]   w-full">
+
       <v-card-text>
         <v-form ref="form" class="mt-1">
           <v-text-field

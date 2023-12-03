@@ -2,7 +2,7 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-const { formatAsCurrency, today } = useUtils()
+const { formatAsCurrency, today, formatAvatar, formatColor } = useUtils()
 const router = useRouter()
 
 const openAddShop = ref(false)
@@ -26,36 +26,6 @@ async function fetchData() {
   }
   catch (error) {
     console.error('Error fetching data:', error)
-  }
-}
-
-function formatAvatar(inputString) {
-  const words = inputString.split(' ')
-  const formattedWords = words.map((word) => {
-    const firstTwoLetters = words.length === 1 ? word.slice(0, 2) : word.slice(0, 1)
-    const capitalizedLetters = firstTwoLetters.toUpperCase()
-    return capitalizedLetters
-  })
-  const formattedString = formattedWords.join('')
-  return formattedString
-}
-
-function formatColor(input) {
-  switch (input) {
-    case 'normal' :
-      return '#1BAFD0'
-
-    case 'discount':
-      return '#6967CE'
-
-    case 'special' :
-      return '#FFB900'
-
-    case 'dealer':
-      return '#FD636B'
-
-    default:
-      return '#9AA0A6'
   }
 }
 
@@ -114,8 +84,8 @@ function goToShop(id) {
 
 <template>
   <v-app-bar
-    class="px-0"
-
+    class="px-0 "
+    elevation="2"
     height="60"
   >
     <!-- <template v-if="!openSearch" #prepend>
@@ -126,14 +96,14 @@ function goToShop(id) {
 
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class=" font-bold text-xl ml-6 text-[#111111]">
+        <span class=" font-bold text-xl ml-6 ">
           Shops
         </span>
 
         <span v-if="filter === 'pending_sort'" class="capitalize opacity-50 text-sm ml-2">
           <span>
             Pending
-            <Icon name="pepicons-pop:sort" color="white" size="20" />
+            <Icon name="pepicons-pop:sort" size="20" />
           </span>
         </span>
 
@@ -195,12 +165,12 @@ function goToShop(id) {
     <div v-show="openSearch" class="w-full  mt-3 pt-2 ">
       <v-text-field
         v-model="searchName"
-        class="search_input flex-full-width px-3 my-3 opacity-80"
+        class="px-3 "
         placeholder="Search Products"
-        rounded
-        theme="light"
-        variant="solo"
         density="compact"
+        dense
+        flat
+        filled
       >
         <Icon slot="prepend-inner-icon" name="gg:search" size="18" class=" mt-[6px] mr-3" />
         <Icon slot="append-inner-icon" name="gg:close" size="18" class=" absolute  mt-[6px]  right-5 cursor-pointer" @click="openSearch = flase ; searchName = ''" />
@@ -261,7 +231,7 @@ function goToShop(id) {
 
             <template #append>
               <div class="relative flex">
-                <span class="font-semibold !text-[15px] text-red-500 bg-pink-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
+                <span class="font-semibold !text-[14px] text-red-500 bg-pink-100 px-2.5 py-1 rounded-[24px] !min-w-[30px] text-center">
                   {{ formatAsCurrency(shop.pending || 0) }}
                 </span>
               </div>
