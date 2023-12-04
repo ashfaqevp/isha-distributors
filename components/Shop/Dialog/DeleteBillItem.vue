@@ -1,18 +1,17 @@
 <script setup>
-import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
-  stock: Object,
+  item: Object,
+  shop: Number,
 })
 
 const emit = defineEmits(['update:modelValue', 'refresh'])
 const { db } = useFirebaseStore()
 const { setToast } = useMainStore()
 
-const today = new Date()
-const date = today.toISOString().split('T')[0]
-
+const { today } = useUtils()
 const loading = ref(false)
 const isOpen = ref(false)
 
@@ -28,26 +27,30 @@ function onCancel() {
   isOpen.value = false
 }
 
-async function deleteStock(id, qnty) {
+async function deleteItem(id, qnty, productId, shopId, shopPending, total) {
   loading.value = true
   try {
+    const billRef = doc(db, 'bills', today, shopId, id)
     const currentRef = doc(db, 'stocks', 'current')
-    const todayRef = doc(db, 'purchase_history', date)
+    const shopRef = doc(db, 'shops', shopId)
+
+    await deleteDoc(billRef)
 
     await fetchCurrentStock()
-    const currentStock = await { [id]: (Number.parseInt(currentStocks.value[id], 10) - Number.parseInt(qnty, 10)) }
-
+    const currentStock = await { [productId]: (Number.parseInt(currentStocks.value[productId], 10) + Number.parseInt(qnty, 10)) }
     await setDoc(currentRef, currentStock, { merge: true })
-    await setDoc(todayRef, { [id]: 0 }, { merge: true })
 
-    setToast(true, 'Stock Deleted Successfully', 'success')
+    const currentPending = await { pending: (Number.parseInt(shopPending, 10) - Number.parseInt(total, 10)) }
+    await setDoc(shopRef, currentPending, { merge: true })
+
+    setToast(true, 'Bill item Deleted Successfully', 'success')
     emit('refresh')
     onCancel()
   }
   catch (error) {
     console.error('An error occurred:', error)
     loading.value = false
-    setToast(true, ' Stock not deleted', 'error')
+    setToast(true, ' Item not deleted', 'error')
   }
 
   finally {
@@ -74,10 +77,10 @@ async function fetchCurrentStock() {
     persistent
     width="514"
   >
-    <v-card title="Delete Stock" class="w-full">
+    <v-card title="Delete Bill Item" class="w-full">
       <v-card-text>
         <div class="mb-5">
-          Are you sure you want to delete {{ stock.qnty }} {{ stock.name }} from stock ?
+          Are you sure dd you want to delete {{ item.qnty }} {{ item.name }} from bill ?
         </div>
 
         <v-footer class="px-0 pt-0">
@@ -90,6 +93,7 @@ async function fetchCurrentStock() {
                 color="gray"
                 variant="outlined"
                 block
+                class="!font-semibold"
                 :disabled="loading"
                 height="44"
                 @click="onCancel"
@@ -104,9 +108,10 @@ async function fetchCurrentStock() {
               <v-btn
                 color="error"
                 block
+                class="!font-semibold"
                 :loading="loading"
                 height="44"
-                @click="deleteStock(stock.id, stock.qnty)"
+                @click="deleteItem(item.id, item.qnty, item.product_id, shop.id, shop.pending, item.total)"
               >
                 Delete
               </v-btn>

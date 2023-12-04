@@ -5,13 +5,10 @@ import moment from 'moment'
 const { db } = useFirebaseStore()
 const router = useRouter()
 
-const { formatAsCurrency, formatColor, formatAvatar } = useUtils()
+const { formatAsCurrency, formatColor, formatAvatar, today } = useUtils()
 
 const route = useRoute()
 const { id } = route?.query
-
-const today = moment()
-const date = today.format('YYYY-MM-DD')
 
 const loading = ref(false)
 const shop = ref({})
@@ -19,9 +16,9 @@ const todayData = ref({})
 const lastdayData = ref({})
 
 const lastPurchaseDate = computed(() => {
-  if (shop?.value?.last_update === date && shop.value?.prev_update)
+  if (shop?.value?.last_update === today && shop.value?.prev_update)
     return shop.value?.prev_update
-  else if (shop?.value?.last_update !== date)
+  else if (shop?.value?.last_update !== today)
     return shop?.value?.last_update
 })
 
@@ -42,7 +39,7 @@ async function fetchShop() {
 // Fetch Today Data
 async function fetchTodayPurchase() {
   try {
-    const billRef = doc(db, 'bills', date)
+    const billRef = doc(db, 'bills', today)
     const dbRef = collection(billRef, id)
     const querySnapshot = await getDocs(dbRef)
     todayData.value.purchaseList = querySnapshot.docs.map(doc => ({
@@ -60,7 +57,7 @@ async function fetchTodayPurchase() {
 
 async function fetchTodayCash() {
   try {
-    const paidDbRef = doc(db, 'cash', date)
+    const paidDbRef = doc(db, 'cash', today)
     const paidRef = collection(paidDbRef, id)
 
     const querySnapshot = await getDocs(paidRef)
@@ -129,11 +126,7 @@ async function fetchDb() {
 }
 
 onMounted (async () => {
-  console.log(today)
-  console.log(date)
-
   await fetchDb()
-
   loading.value = await true
   if (lastPurchaseDate.value) {
     await fetchLastPurchase()
@@ -147,6 +140,9 @@ function gotoShops() {
 }
 
 const openCash = ref(false)
+
+const selectedItem = ref({})
+const openDeleteItem = ref(false)
 </script>
 
 <template>
@@ -168,7 +164,7 @@ const openCash = ref(false)
               {{ formatAvatar(shop?.name || '') }}
             </span>
           </v-avatar>
-          <span class=" font-bold text-xl ml-2 ">
+          <span class=" !font-semi-bold !text-xl ml-2 ">
             {{ shop?.name || '' }}
           </span>
         </v-app-bar-title>
@@ -180,34 +176,6 @@ const openCash = ref(false)
         </v-app-bar-nav-icon>
       </template>
     </v-app-bar>
-
-    <!-- <div class="z-30 sticky top-[70px] px-4 ">
-      <v-card elevation="5" rounded="10" class="!border-[0px] border-primary !rounded-[8px]">
-        <v-card-text>
-          <div class="b!h-[100px] w-full flex items-center">
-            <div class="w-full !pr-2 text-center ">
-              <p class="font-semibold text-gray-400 text-sm ">
-                Pending
-              </p>
-              <p class="py-1 font-bold text-red-600 text-lg  rounded-full">
-                {{ formatAsCurrency(shop?.pending || 0) }}
-              </p>
-            </div>
-            <div class="h-[70px] border-r-[1px] border-gray-300" />
-
-            <div class=" w-full  align-end text-center ">
-              <p class="font-semibold text-gray-400 text-sm">
-                Credit Balance
-              </p>
-              <p class="py-1 font-bold text-indigo text-lg">
-                {{ formatAsCurrency(shop?.credit_limit || 0) }}
-              </p>
-            </div>
-          </div>
-        </v-card-text>
-      </v-card>
-    </div> -->
-
     <v-main class="bg-gray-50 h-full">
       <v-container v-if="loading" fluid>
         <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
@@ -280,7 +248,7 @@ const openCash = ref(false)
                         Qnty
                       </span>
                     </th>
-                    <th class="text-end pr-7 text-sm  text-white !font-semibold !bg-primary">
+                    <th class="text-end !pr-[36px] text-sm  text-white !font-semibold !bg-primary">
                       Amount
                     </th>
                   </tr>
@@ -317,9 +285,9 @@ const openCash = ref(false)
                           <Icon name="icon-park-outline:more-one" size="22" class="" />
                         </button>
 
-                        <v-menu activator="parent" width="100px" class="!w-[50px]">
+                        <v-menu activator="parent" width="110" class=" ">
                           <v-list>
-                            <v-list-item @click="openDeleteStock = true ; selectedStock = item">
+                            <v-list-item @click="openDeleteItem = true ; selectedItem = item">
                               <template #append>
                                 <Icon name="mdi:delete-outline" size="18" />
                               </template>
@@ -341,8 +309,8 @@ const openCash = ref(false)
                 <p class="  text-slate-500 px-2 text-gray text-xs ">
                   OB :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold !text-[15px]  text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
-                  {{ formatAsCurrency(todayData?.total || 0) }}
+                <p class="!bg-pink-00 w-fit font-semibold !text-[13px] text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency((shop?.pending || 0) + (todayData?.cash || 0) - (todayData?.total || 0)) }}
                 </p>
               </div>
 
@@ -350,8 +318,8 @@ const openCash = ref(false)
                 <p class=" px-2 text-slate-500 py-1 text-xs">
                   Total :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2  rounded-[16px] ">
-                  {{ formatAsCurrency(shop?.pending || 0 + ((todayData?.cash || 0 - todayData?.total || 0) || 0)) }}
+                <p class="!bg-pink-00 w-fit font-semibold  text-[13px]text-center text-primary mb-2 px-2  rounded-[16px] ">
+                  {{ formatAsCurrency(todayData?.total || 0) }}
                 </p>
               </div>
             </div>
@@ -361,7 +329,7 @@ const openCash = ref(false)
                 <p class="  px-2 text-slate-500 text-xs ">
                   Collection :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold text-[13px]text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(todayData?.cash) }}
                 </p>
               </div>
@@ -370,60 +338,20 @@ const openCash = ref(false)
                 <p class=" px-2 text-slate-500 text-xs ">
                   Balance :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold text-[13px]text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(shop?.pending) }}
                 </p>
               </div>
             </div>
-
-            <!-- <div class="w-full justify-end flex px-5 pb-5">
-              <div class="min-w-[180px] flex flex-col  justify-end text-end !px-3 pt-3 gap-y-2">
-                <span class="flex justify-between">
-                  <spna>
-                    Total :
-                  </spna>
-                  <span>
-                    {{ formatAsCurrency(todayData?.total || 0) }}
-                  </span>
-                </span>
-
-                <span class="flex justify-between">
-                  <spna>
-                    OB :
-                  </spna>
-                  <span>
-                    {{ formatAsCurrency(shop?.pending || 0 + ((todayData?.cash || 0 - todayData?.total || 0) || 0)) }}
-                  </span>
-                </span>
-
-                <span class="flex justify-between">
-                  <spna>
-                    Cash :
-                  </spna>
-                  <span class="text-green font-semibold">
-                    {{ formatAsCurrency(todayData?.cash) }}
-                  </span>
-                </span>
-
-                <span class="flex justify-between">
-                  <spna>
-                    Balance :
-                  </spna>
-                  <span class="text-red font-semibold">
-                    {{ formatAsCurrency(shop?.pending) }}
-                  </span>
-                </span>
-              </div>
-            </div> -->
           </v-card-text>
         </v-card>
 
         <!-- LASTDAY -->
 
-        <v-card v-if="todayData?.total || todayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
+        <v-card v-if="lastdayData?.total || lastdayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
           <v-card-title class="  py-3 !bg-primary !text-white  ">
             <div class=" flex justify-between font-semibold ">
-              {{ lastPurchaseDate }}
+              {{ moment(lastPurchaseDate).format('DD MMM dddd') }}
               <button>
                 <Icon name="ic:baseline-share" class="" />
               </button>
@@ -492,7 +420,7 @@ const openCash = ref(false)
                 <p class="  text-slate-500 px-2 text-gray text-xs ">
                   OB :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold !text-[15px]  text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold !text-[13px] text-center text-fuchsia-900 mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(((shop.pending + ((todayData?.cash - todayData?.total) || 0)) + lastdayData.cash - lastdayData.total || 0)) }}
                 </p>
               </div>
@@ -501,7 +429,7 @@ const openCash = ref(false)
                 <p class=" px-2 text-slate-500 py-1 text-xs">
                   Total :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold  text-[15px] text-center text-primary mb-2 px-2  rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold  text-[13px]text-center text-primary mb-2 px-2  rounded-[16px] ">
                   {{ formatAsCurrency(lastdayData.total || 0) }}
                 </p>
               </div>
@@ -512,7 +440,7 @@ const openCash = ref(false)
                 <p class="  px-2 text-slate-500 text-xs ">
                   Collection :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold text-[15px] text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold text-[13px]text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(lastdayData?.cash || 0) }}
                 </p>
               </div>
@@ -521,7 +449,7 @@ const openCash = ref(false)
                 <p class=" px-2 text-slate-500 text-xs ">
                   Balance :
                 </p>
-                <p class="w-fit font-semibold text-[15px] text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="w-fit font-semibold text-[13px]text-center text-red mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(((shop.pending + ((todayData.cash - todayData.total) || 0)))) }}
                 </p>
               </div>
@@ -582,5 +510,6 @@ const openCash = ref(false)
       </v-btn>
     </div>
   </div>
+  <ShopDialogDeleteBillItem v-model="openDeleteItem" :item="selectedItem" :shop="shop" @refresh="fetchDb" />
   <ShopDialogCash v-model="openCash" :shop="shop" :cash-list="todayData.cashList" @refresh="fetchDb" />
 </template>
