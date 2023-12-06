@@ -1,6 +1,6 @@
 <script setup>
 import moment from 'moment'
-import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -10,12 +10,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'refresh'])
 
-const { formatAsCurrency } = useUtils()
+const { formatAsCurrency, today } = useUtils()
 const { setToast } = useMainStore()
 const { db } = useFirebaseStore()
-
-const today = moment()
-const date = today.format('YYYY-MM-DD')
 
 const body = ref({})
 const form = ref()
@@ -54,13 +51,13 @@ async function savePaid() {
       cashItem.trans_id = body.value?.trans_id
 
     // create shop update
-    const shopUpdated = { pending: ((Number.parseInt(props.shop?.pending, 10) - Number.parseInt(body.value?.cash, 10))), last_update: date }
+    const shopUpdated = { pending: ((Number.parseInt(props.shop?.pending, 10) - Number.parseInt(body.value?.cash, 10))), last_update: today }
 
-    if (props.shop?.last_update?.length && props.shop?.last_update !== date)
+    if (props.shop?.last_update?.length && props.shop?.last_update !== today)
       shopUpdated.prev_update = props.shop?.last_update
 
     // create ref
-    const paidDbRef = doc(db, 'cash', date)
+    const paidDbRef = doc(db, 'cash', today)
     const paidRef = collection(paidDbRef, props.shop.id)
 
     const shopRef = doc(db, 'shops', props.shop.id)
@@ -82,6 +79,31 @@ async function savePaid() {
     setToast(true, 'Cash not Saved', 'error')
   }
 }
+
+async function openDeleteCash(item) {
+  saveLoading.value = true
+  try {
+    const cashRef = doc(db, 'cash', today, props.shop.id, item.id)
+    const shopRef = doc(db, 'shops', props.shop.id)
+
+    await deleteDoc(cashRef)
+
+    const currentPending = await { pending: (Number.parseInt(props.shop?.pending, 10) + Number.parseInt(item.cash, 10)) }
+    await setDoc(shopRef, currentPending, { merge: true })
+
+    setToast(true, 'Cash deleted  successfully', 'success')
+    emit('refresh')
+    onCancel()
+  }
+  catch (error) {
+    console.error('An error occurred:', error)
+    setToast(true, ' cash not deleted', 'error')
+  }
+
+  finally {
+    saveLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -96,29 +118,33 @@ async function savePaid() {
           <button>
             <Icon name="eva:arrow-back-outline" size="24" @click="onCancel" />
           </button>
-          Cash
+          <span class="font-semibold">
+            Cash
+          </span>
         </div>
       </v-card-title>
 
+      <hr class=" border-[1px]   w-full">
+
       <v-card-text>
         <div class="">
-          <div v-if="cashList?.length" class="!h-full !shadow-md !rounded-[5px] !mb-8">
+          <div v-if="cashList?.length" class="!h-full !shadow-md  !mb-8 !rounded-[10px]">
             <v-table
               fixed-header
             >
               <thead class="">
                 <tr class="">
-                  <th class="text-left !bg-[#8f9bc4] text-white !font-semibold flex items-center gap-x-1.5">
+                  <th class="text-left text-sm !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                     <span>
                       No
                     </span>
                   </th>
-                  <th class="text-left !bg-[#8f9bc4] text-white !font-semibold !w-fit">
+                  <th class="text-left text-sm !bg-primary text-white !font-semibold !w-fit">
                     <span>
                       Method
                     </span>
                   </th>
-                  <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+                  <th class="text-left text-sm !bg-primary text-white !font-semibold">
                     Amount
                   </th>
                 </tr>
@@ -129,25 +155,35 @@ async function savePaid() {
                   :key="item.id"
                   class="w-full"
                 >
-                  <td class="text-sm flex items-center  ">
-                    <span class="w-full">
+                  <td class="text-xs flex justify-center  ">
+                    <p class="w-full text-xs flex items-center justify-center !w-4  text-center">
                       {{ index + 1 }}
+                    </p>
+                  </td>
+                  <td class="text-xs w-fit gap-x-3 text-xs  ">
+                    <span class=" capitalize flex items-center justify-center">
+
+                      {{ item.method }}
+
+                      <!-- <Icon v-if=" item.method === 'direct'" name="tdesign:undertake-transaction" color="green" size="20" />
+                      <Icon v-else name="logos:google-pay" size="32" class="font-bold text-black" /> -->
+
                     </span>
+                    <div v-if="item.method === 'online'" class="text-[10px] !max-w-[80px] text-center  truncate">
+                      {{ item.trans_id }}
+                    </div>
                   </td>
-                  <td class="text-sm w-fit gap-x-3 ">
-                    <span class="mr-3 capitalize"> {{ item.method }}</span>
-                  </td>
-                  <td class=" text-start text-sm font-semibold   !min-w-[100px] items-end relative  ">
+                  <td class=" text-start text-xs   !min-w-[100px] items-end relative   ">
                     {{ formatAsCurrency(item.cash) }}
 
-                    <span class=" absolute right-1 text-end font-normal  ">
+                    <span class=" absolute right-1 text-end font-normal top-4  ">
                       <button>
                         <Icon name="icon-park-outline:more-one" size="22" class="" />
                       </button>
 
-                      <v-menu activator="parent" width="100px" class="!w-[50px]">
+                      <v-menu activator="parent" width="110px">
                         <v-list>
-                          <v-list-item @click="openDeleteStock = true ; selectedStock = item">
+                          <v-list-item @click="openDeleteCash(item) ">
                             <template #append>
                               <Icon name="mdi:delete-outline" size="18" />
                             </template>
@@ -195,7 +231,6 @@ async function savePaid() {
               v-if="body.method?.value === 'online'"
               v-model="body.trans_id"
               label="Transaction ID"
-              type="number"
               :rules="body.method?.value === 'online' && [v => !!v || '']"
               variant="outlined"
               required
