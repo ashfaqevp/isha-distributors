@@ -86,10 +86,6 @@ onMounted (async () => {
   const divElement = document.getElementById('table-list')
   tableHeight.value = divElement?.offsetHeight
 })
-
-function goBack() {
-  router.push({ path: '/' })
-}
 </script>
 
 <template>
@@ -97,15 +93,9 @@ function goBack() {
     class="px-0 !z-20 "
     height="60"
   >
-    <!-- <template #prepend>
-      <v-app-bar-nav-icon class="mx-0">
-        <Icon name="eva:arrow-back-outline" size="22" @click="goBack()" />
-      </v-app-bar-nav-icon>
-    </template> -->
-
     <div class="flex ml-6 w-full">
       <v-app-bar-title>
-        <span class=" font-semibold text-2xl">
+        <span class=" font-semibold text-xl">
           Collection
         </span>
         <span class="mx-2">
