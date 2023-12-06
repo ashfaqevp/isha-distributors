@@ -15,6 +15,9 @@ const shop = ref({})
 const todayData = ref({})
 const lastdayData = ref({})
 
+const openEditShop = ref(false)
+const openDeleteShop = ref(false)
+
 const lastPurchaseDate = computed(() => {
   if (shop?.value?.last_update === today && shop.value?.prev_update)
     return shop.value?.prev_update
@@ -164,7 +167,7 @@ const openDeleteItem = ref(false)
               {{ formatAvatar(shop?.name || '') }}
             </span>
           </v-avatar>
-          <span class=" !font-semi-bold !text-xl ml-2 ">
+          <span class=" !font-semibold !text-xl ml-2 ">
             {{ shop?.name || '' }}
           </span>
         </v-app-bar-title>
@@ -173,6 +176,27 @@ const openDeleteItem = ref(false)
       <template #append>
         <v-app-bar-nav-icon>
           <Icon name="icon-park-outline:more-one" size="28" />
+          <v-menu activator="parent">
+            <v-list>
+              <v-list-item @click="openEditShop = true ">
+                <v-list-item-title class="w-[70px]">
+                  {{ "Edit" }}
+                </v-list-item-title>
+                <template #append>
+                  <Icon name="mdi:edit-outline" size="18" />
+                </template>
+              </v-list-item>
+
+              <v-list-item @click="openDeleteShop = true ">
+                <template #append>
+                  <Icon name="mdi:delete-outline" size="18" />
+                </template>
+                <v-list-item-title>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-app-bar-nav-icon>
       </template>
     </v-app-bar>
@@ -512,4 +536,7 @@ const openDeleteItem = ref(false)
   </div>
   <ShopDialogDeleteBillItem v-model="openDeleteItem" :item="selectedItem" :shop="shop" @refresh="fetchDb" />
   <ShopDialogCash v-model="openCash" :shop="shop" :cash-list="todayData.cashList" @refresh="fetchDb" />
+
+  <ShopDialogEditShop v-model="openEditShop" :shop="shop" @refresh="fetchDb" />
+  <ShopDialogDeleteShop v-model="openDeleteShop" :shop="shop" @refresh="gotoShops" />
 </template>

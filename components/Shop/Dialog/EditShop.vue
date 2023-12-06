@@ -1,9 +1,9 @@
-import { Body } from '#build/components';
 <script setup>
-import { addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
+  shop: Object,
 })
 
 const emit = defineEmits(['update:modelValue', 'refresh'])
@@ -22,11 +22,9 @@ const loading = ref(false)
 
 watch(() => props?.modelValue?.length, () => {
   if (props?.modelValue) {
+    console.log(props?.shop?.id)
+    body.value = { ...props?.shop }
     isOpen.value = true
-    body.value.type = 'normal'
-    body.value.credit_limit = 1000
-    body.value.pending = 0
-    body.value.created_date = today
   }
 }, { deep: true, immediate: true })
 
@@ -37,7 +35,17 @@ function onCancel() {
   isOpen.value = false
 }
 
-async function addShop() {
+async function fetchShops() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'shops'))
+    shopNameList.value = querySnapshot.docs.map(doc => doc.data().name)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+async function updateShop() {
   const { valid } = await form.value.validate()
 
   if (!valid) {
@@ -45,7 +53,7 @@ async function addShop() {
     return
   }
 
-  if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
+  if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase()) && (body.value?.name.toLowerCase() !== props.shop.name.toLowerCase())) {
     setToast(true, 'This shop name already exist!', 'error')
     return
   }
@@ -54,9 +62,12 @@ async function addShop() {
 
   try {
     const shop = body.value
-    const dbRef = collection(db, 'shops')
-    await addDoc(dbRef, shop)
-    setToast(true, 'Shop added to shop successfully', 'success')
+    shop.edit_date = today
+
+    const shopRef = doc(db, 'shops', props.shop.id)
+    await updateDoc(shopRef, shop)
+
+    setToast(true, 'Shop updated successfully', 'success')
     emit('refresh')
     onCancel()
   }
@@ -81,16 +92,6 @@ async function fetchPlaces() {
   }
 }
 
-async function fetchShops() {
-  try {
-    const querySnapshot = await getDocs(collection(db, 'shops'))
-    shopNameList.value = querySnapshot.docs.map(doc => doc.data().name)
-  }
-  catch (error) {
-    console.error('Error fetching data:', error)
-  }
-}
-
 onMounted (async () => {
   await fetchPlaces()
   await fetchShops()
@@ -109,7 +110,7 @@ onMounted (async () => {
           <button>
             <Icon name="eva:arrow-back-outline" size="24" @click="onCancel" />
           </button>
-          Add New Shop
+          Edit Shop
         </div>
       </v-card-title>
 
@@ -176,6 +177,7 @@ onMounted (async () => {
           <v-text-field
             v-model="body.pending"
             label="Pending"
+            :readonly="true"
             required
             prefix="₹"
             type="number"
@@ -211,9 +213,9 @@ onMounted (async () => {
                   height="44"
                   class="!font-semibold"
                   :loading="loading"
-                  @click="addShop()"
+                  @click="updateShop()"
                 >
-                  Save
+                  Update
                 </v-btn>
               </v-col>
             </v-row>
