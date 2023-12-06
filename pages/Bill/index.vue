@@ -5,13 +5,10 @@ import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/fires
 const { db } = useFirebaseStore()
 const route = useRoute()
 const router = useRouter()
-const { formatAsCurrency } = useUtils()
+const { formatAsCurrency, formatColor, formatAvatar, today } = useUtils()
 const { setToast } = useMainStore()
 
 const { shop_id } = route?.query
-
-const today = moment()
-const date = today.format('YYYY-MM-DD')
 
 const form = ref()
 const shop = ref({})
@@ -123,6 +120,9 @@ async function addProduct() {
   }
 
   purchaseList.value.push(purchaseItem)
+  const divElement = document.getElementById('table-list')
+  tableHeight.value = divElement?.offsetHeight + 40
+  console.log(tableHeight.value)
   body.value = {}
 }
 
@@ -130,7 +130,7 @@ async function addProduct() {
 async function save() {
   saveLoading.value = true
   try {
-    const billDbRef = doc(db, 'bills', date)
+    const billDbRef = doc(db, 'bills', today)
     const billRef = collection(billDbRef, shop_id)
 
     const currentRef = doc(db, 'stocks', 'current')
@@ -149,8 +149,8 @@ async function save() {
     // update shop details
 
     // create shop update
-    const shopUpdated = { pending: ((Number.parseInt(shop.value?.pending, 10) + Number.parseInt(total.value, 10))), last_update: date }
-    if (shop.value?.last_update?.length && shop.value?.last_update !== date)
+    const shopUpdated = { pending: ((Number.parseInt(shop.value?.pending, 10) + Number.parseInt(total.value, 10))), last_update: today }
+    if (shop.value?.last_update?.length && shop.value?.last_update !== today)
       shopUpdated.prev_update = shop.value?.last_update
     await setDoc(shopRef, shopUpdated, { merge: true })
 
@@ -165,10 +165,17 @@ async function save() {
   }
 }
 
+const tableHeight = ref(0)
+const screenHeight = ref(0)
+
 onMounted (async () => {
   await fetchShop()
   await fetchProducts()
   await fetchCurrentStock()
+
+  screenHeight.value = window?.screen?.height
+  const divElement = document.getElementById('table-list')
+  tableHeight.value = divElement?.offsetHeight
 })
 
 // #495372
@@ -177,7 +184,6 @@ onMounted (async () => {
 <template>
   <v-app-bar
     class="px-0 "
-    color="#495372"
     :elevation="0"
   >
     <template #prepend>
@@ -188,19 +194,26 @@ onMounted (async () => {
 
     <div class="flex justify-left w-full">
       <v-app-bar-title>
-        <span class="  font-semibold">
-          {{ shop?.name || 'New Bill' }}
+        <v-avatar :color="formatColor(shop?.type)" size="42">
+          <span class="font-bold text-[18px]">
+
+            {{ formatAvatar(shop?.name || '') }}
+          </span>
+        </v-avatar>
+        <span class=" !font-semibold !text-xl ml-2 ">
+          {{ shop?.name || '' }}
+          <!-- {{ tableHeight }} -->
         </span>
       </v-app-bar-title>
     </div>
 
     <template #append>
       <v-app-bar-title>
-        <div v-if="shop?.name?.length" class="flex flex-col h-15 gap-y-1">
+        <div v-if="shop?.name?.length" class="flex flex-col h-15 gap-y-1 mr-3">
           <p class="opacity-50 text-[10px] h-4 ">
             Credit Balance
           </p>
-          <span class=" !text-[16px] font-semibold">
+          <span class=" !text-[14px] font-bold text-indigo  font-semibold">
             {{ formatAsCurrency(creditBalance - (total || 0)) }}
           </span>
         </div>
@@ -210,7 +223,7 @@ onMounted (async () => {
 
   <!-- <div class="relative h-full"> -->
   <v-main class="bg-gray-50 ">
-    <v-sheet width="full" color="#495372" class="!w-full !h-fit  pb-3 " :elevation="10">
+    <v-sheet width="full" elevation="2" class="!w-full !h-fit  pb-3 ">
       <v-form ref="form" class="">
         <div class="py-2 grid grid-cols-6 gap-4 px-3 !gap-y-[18px]">
           <v-autocomplete
@@ -261,31 +274,37 @@ onMounted (async () => {
           />
 
           <v-btn
-            color="primary"
             size="small"
             rounded
-            class=" !h-[50px] !w-[50px] bg-white col-span-1 "
-            :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100'"
+            class=" !h-[50px] !w-[50px] !bg-secondary  col-span-1 "
+            :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100 !text-white'"
             :disabled="saveLoading || loading "
             @click=" addProduct"
           >
-            <Icon name="material-symbols:add" size="36" class="text-[#495372]" />
+            <Icon name="material-symbols:add" size="36" class="text-white" />
           </v-btn>
         </div>
       </v-form>
     </v-sheet>
     <v-container fluid>
-      <div class="flex flex-col !px-0">
-        <div v-if="purchaseList?.length" class="!h-full !shadow-md !rounded-[10px] ">
+      <div class="flex flex-col h-full !px-0  " :class="`!h-[${700}px]`">
+        <!-- <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
+          <v-progress-circular
+            indeterminate
+            color="primary"
+          />
+        </div> -->
+        <div v-show="purchaseList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
           <v-table
             fixed-header
+            :height="tableHeight > (screenHeight - 550) ? `${screenHeight - 550}px` : ''"
           >
             <thead class="">
-              <tr class="">
-                <!-- <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <tr class="text-sm">
+                <!-- <th class="text-left !bg-primary text-white !font-semibold">
                   No
                 </th> -->
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold flex items-center gap-x-1.5">
+                <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                   <span class="!w-6">
                     No
                   </span>
@@ -293,7 +312,7 @@ onMounted (async () => {
                     Product
                   </span>
                 </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold !w-fit">
+                <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                   <span>
                     Qnty
                   </span>
@@ -301,18 +320,19 @@ onMounted (async () => {
                     Qty
                   </span> -->
                 </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+                <th class="text-left !bg-primary text-white !font-semibold">
                   Amount
                 </th>
               </tr>
             </thead>
             <tbody>
+              <!-- v-for="(item, index) in [...purchaseList, ...purchaseList, ...purchaseList, ...purchaseList]" -->
               <tr
                 v-for="(item, index) in purchaseList"
                 :key="item.id"
                 class="w-full"
               >
-                <td class="text-sm flex items-center  ">
+                <td class="text-xs flex items-center  ">
                   <span class="!w-8 font-semibold  ">
                     {{ index + 1 }}
                   </span>
@@ -320,11 +340,11 @@ onMounted (async () => {
                     {{ item.name }}
                   </span>
                 </td>
-                <td class="text-sm w-fit gap-x-3 ">
+                <td class="text-xs w-fit gap-x-3 ">
                   <span class="font-semibold mr-3"> {{ item.qnty }}</span>
                   <span class="font-100 !text-xs text-gray-400">x{{ item.price }}</span>
                 </td>
-                <td class=" ext-start text-sm  !min-w-[130px] items-end relative  ">
+                <td class=" text-start text-xs  !min-w-[130px] items-end relative  ">
                   {{ formatAsCurrency(item.total) }}
 
                   <span class=" absolute right-2.5 text-end ">
@@ -339,15 +359,21 @@ onMounted (async () => {
           </v-table>
         </div>
 
-        <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
+        <!-- <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
           No Data !
+        </div> -->
+
+        <div v-if="!purchaseList?.length" class="!h-full flex items-center">
+          <ImagesNoData class="!scale-20 relative bottom-1" />
         </div>
       </div>
+      <!-- </v-container>
+    <CoreNavSpacer /> -->
     </v-container>
   </v-main>
 
-  <div class="h-fit w-full sticky !bottom-0 !w-full !px-10 py-6 ">
-    <v-btn color="#495372" size="x-large" class=" !w-full !text-sm !font-bold" :loading="saveLoading" rounded @click="save()">
+  <div class="h-fit w-full !fixed !bottom-[76px]   !w-full !px-10  ">
+    <v-btn size="x-large" class="!text-white !w-full !text-sm !font-semibold !bg-secondary" :loading="saveLoading" rounded @click="save()">
       <span class="mr-4">
         {{ 'BILL' }}
       </span>
