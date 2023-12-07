@@ -5,6 +5,8 @@ export function useUtils() {
   const date = moment()
   const today = date.format('YYYY-MM-DD')
 
+  const currentTime = new Date()
+
   const productCategories = ['Milk Products', 'Curd & Sambaram', 'Ghee & Butter', 'Ice Creams', 'Sweet & Drinks', 'Others']
   const shopCategories = ['normal', 'discount', 'special', 'dealer']
 
@@ -54,6 +56,7 @@ export function useUtils() {
     productCategories,
     shopCategories,
     today,
+    currentTime,
     formatAvatar,
     formatColor,
     capitalize,

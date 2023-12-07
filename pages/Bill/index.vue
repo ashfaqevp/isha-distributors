@@ -5,7 +5,7 @@ import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/fires
 const { db } = useFirebaseStore()
 const route = useRoute()
 const router = useRouter()
-const { formatAsCurrency, formatColor, formatAvatar, today } = useUtils()
+const { formatAsCurrency, formatColor, formatAvatar, today, shopCategories } = useUtils()
 const { setToast } = useMainStore()
 
 const { shop_id } = route?.query
@@ -68,14 +68,25 @@ async function fetchCurrentStock() {
 const priceList = computed(() => {
   const prices = ['price_a', 'price_b', 'price_c', 'price_d']
   if (body.value?.product?.id) {
-    body.value.price = body.value?.product.price_a
+    if (shop.value?.type === shopCategories[3])
+      body.value.price = body.value?.product.price_d
+
+    else if (shop.value?.type === shopCategories[2])
+      body.value.price = body.value?.product.price_c
+
+    else if (shop.value?.type === shopCategories[1])
+      body.value.price = body.value?.product.price_b
+
+    else
+      body.value.price = body.value?.product.price_a
+
     return prices.map(key => body.value?.product[key])
   }
 })
 
 const creditBalance = computed(() => {
   const pending = shop.value?.pending || 0
-  const creditLimit = shop.value?.credit_limit || 5000
+  const creditLimit = shop.value?.credit_limit || 1000
   return creditLimit - pending
 })
 
@@ -147,8 +158,6 @@ async function save() {
     await setDoc(currentRef, currentStock.value, { merge: true })
 
     // update shop details
-
-    // create shop update
     const shopUpdated = { pending: ((Number.parseInt(shop.value?.pending, 10) + Number.parseInt(total.value, 10))), last_update: today }
     if (shop.value?.last_update?.length && shop.value?.last_update !== today)
       shopUpdated.prev_update = shop.value?.last_update
@@ -221,8 +230,7 @@ onMounted (async () => {
     </template>
   </v-app-bar>
 
-  <!-- <div class="relative h-full"> -->
-  <v-main class="bg-gray-50 ">
+  <div class="z-30 sticky top-[60px] ">
     <v-sheet width="full" elevation="2" class="!w-full !h-fit  pb-3 ">
       <v-form ref="form" class="">
         <div class="py-2 grid grid-cols-6 gap-4 px-3 !gap-y-[18px]">
@@ -286,24 +294,26 @@ onMounted (async () => {
         </div>
       </v-form>
     </v-sheet>
+  </div>
+
+  <!-- <div class="relative h-full"> -->
+  <v-main class="bg-gray-50  ">
     <v-container fluid>
-      <div class="flex flex-col h-full !px-0  " :class="`!h-[${700}px]`">
+      <!-- <div class="flex flex-col h-full !px-0  " :class="`!h-[${700}px]`"> -->
+      <div class="flex flex-col h-full !px-0  ">
         <!-- <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
           <v-progress-circular
             indeterminate
             color="primary"
           />
         </div> -->
-        <div v-show="purchaseList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
+        <div v-show="purchaseList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px] !bg-red mb-[68px] ">
           <v-table
             fixed-header
-            :height="tableHeight > (screenHeight - 550) ? `${screenHeight - 550}px` : ''"
+            :height="tableHeight > (screenHeight - 460) ? `${screenHeight - 460}px` : ''"
           >
             <thead class="">
               <tr class="text-sm">
-                <!-- <th class="text-left !bg-primary text-white !font-semibold">
-                  No
-                </th> -->
                 <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                   <span class="!w-6">
                     No
@@ -316,9 +326,6 @@ onMounted (async () => {
                   <span>
                     Qnty
                   </span>
-                  <!-- <span class="">
-                    Qty
-                  </span> -->
                 </th>
                 <th class="text-left !bg-primary text-white !font-semibold">
                   Amount
@@ -326,6 +333,7 @@ onMounted (async () => {
               </tr>
             </thead>
             <tbody>
+              <!-- v-for="(item, index) in purchaseList" -->
               <!-- v-for="(item, index) in [...purchaseList, ...purchaseList, ...purchaseList, ...purchaseList]" -->
               <tr
                 v-for="(item, index) in purchaseList"
@@ -373,7 +381,7 @@ onMounted (async () => {
   </v-main>
 
   <div class="h-fit w-full !fixed !bottom-[76px]   !w-full !px-10  ">
-    <v-btn size="x-large" class="!text-white !w-full !text-sm !font-semibold !bg-secondary" :loading="saveLoading" rounded @click="save()">
+    <v-btn :disabled="!purchaseList?.length" size="x-large" class="!text-white !w-full !text-sm !font-semibold !bg-secondary" :loading="saveLoading" rounded @click="save()">
       <span class="mr-4">
         {{ 'BILL' }}
       </span>
@@ -382,4 +390,6 @@ onMounted (async () => {
       </span>
     </v-btn>
   </div>
+
+  <BaseOverlay v-if="saveLoading" />
 </template>
