@@ -55,7 +55,7 @@ watch(() => openSearch, () => {
 
 const filterdShops = computed(() => {
   if (shopList.value?.length)
-    return shopList.value.filter(item => item.name.toLowerCase().includes(searchName.value.toLowerCase()))
+    return shopList.value?.filter(item => (item?.name || '').toLowerCase().includes(searchName.value?.toLowerCase()))
 })
 
 const pendingSortedShops = computed(() => {
@@ -206,9 +206,9 @@ function goToShop(id) {
           <v-list-item class="!py-2" @click="goToShop(shop.id)">
             <template #prepend>
               <div class="relative mr-5">
-                <v-avatar :color="formatColor(shop.type)" size="46">
+                <v-avatar :color="formatColor(shop?.type)" size="46">
                   <span class="font-bold">
-                    {{ formatAvatar(shop.name) }}
+                    {{ formatAvatar(shop?.name || 'SH') }}
                   </span>
                 </v-avatar>
                 <span v-if="shop?.last_update === today" class="absolute -bottom-1 -right-2">
