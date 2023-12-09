@@ -2,9 +2,46 @@
 const router = useRouter()
 const selectedItem = ref(3)
 
+// const route = useRoute()
+console.log(router)
+
 function navigate(route) {
   router.push({ path: route })
 }
+
+watch(() => router, () => {
+  const path = router.currentRoute.value?.path
+  console.log(path)
+
+  switch (path) {
+    case '/shops' :
+      selectedItem.value = 2
+      return
+
+    case '/shop' :
+      selectedItem.value = 2
+      return
+
+    case '/reports' :
+      selectedItem.value = 0
+      return
+
+    case '/collection' :
+      selectedItem.value = 1
+      return
+
+    case '/stocks' :
+      selectedItem.value = 3
+      return
+
+    case '/products' :
+      selectedItem.value = 4
+      return
+
+    default:
+      selectedItem.value = 2
+  }
+}, { deep: true, immediate: true })
 </script>
 
 <template>
