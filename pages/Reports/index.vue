@@ -228,26 +228,19 @@ onMounted (async () => {
   <div class="relative">
     <v-app-bar
       class="px-0 !z-20 "
-      color="primary"
+      height="60"
     >
-      <template #prepend>
-        <v-app-bar-nav-icon class="mx-0">
-          <Icon name="eva:arrow-back-outline" size="22" @click="gotoShops" />
-        </v-app-bar-nav-icon>
-      </template>
-
-      <div class="flex justify-left w-full">
+      <div class="flex ml-6 w-full">
         <v-app-bar-title>
-          {{ 'Reports' }}
+          <span class=" font-semibold text-xl">
+            Reports
+          </span>
         </v-app-bar-title>
       </div>
 
       <template #append>
         <v-app-bar-nav-icon>
-          <Icon name="ic:outline-history" size="28" />
-        </v-app-bar-nav-icon>
-        <v-app-bar-nav-icon>
-          <Icon name="mingcute:filter-line" size="28" />
+          <Icon name="ic:outline-history" size="24" />
         </v-app-bar-nav-icon>
       </template>
     </v-app-bar>
@@ -290,8 +283,8 @@ onMounted (async () => {
 
         <div class="flex flex-col !px-0 mt-5">
           <div v-if="!mergedSaleList?.length || saleLoading" class="w-full  mb-9 !rounded-b-[10px] shadow-lg">
-            <div class="text-xs w-full flex w-full justify-between h-[52px]  ">
-              <span class=" rounded-tl-[10px] text-left !bg-[#91bfff] w-full text-white !font-semibold flex items-center gap-x-1.5 px-4">
+            <div class="text-sm w-full flex w-full justify-between h-[52px]  ">
+              <span class=" rounded-tl-[10px] text-left !bg-primary w-full text-white !font-semibold flex items-center gap-x-1.5 px-4">
                 <span class="">
                   No
                 </span>
@@ -300,24 +293,24 @@ onMounted (async () => {
                 </span>
               </span>
 
-              <span class="text-center !bg-[#91bfff]  text-white !font-semibold !w-fit items-center flex  justify-center px-4">
+              <span class="text-center !bg-primary  text-white !font-semibold !w-fit items-center flex  justify-center px-4">
                 Qnty
               </span>
 
-              <span class="text-left !bg-[#91bfff] text-white !font-semibold w-fit px-4 items-center flex ">
+              <span class="text-left !bg-primary text-white !font-semibold w-fit px-4 items-center flex ">
                 Cost
               </span>
 
-              <span class=" rounded-tr-[10px] text-left !bg-[#91bfff] text-white !font-semibold w-fit px-4 items-center flex ">
+              <span class=" rounded-tr-[10px] text-left !bg-primary text-white !font-semibold w-fit px-4 items-center flex ">
                 Sale
               </span>
             </div>
             <div v-if="saleLoading || loading" class="h-20 bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
               <Icon name="eos-icons:loading" size="28" color="primary" />
             </div>
-            <div v-else class="!h-[200px] bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
+            <!-- <div v-else class="!h-[200px] bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
               <ImagesNoData class="scale-50 " />
-            </div>
+            </div> -->
           </div>
 
           <div v-else id="table-stock" class="!h-full !shadow-md !rounded-[10px] ">
@@ -326,9 +319,9 @@ onMounted (async () => {
               :loading="true"
               :height="tableHeight > (screenHeight - 440) ? `${screenHeight - 440}px` : ''"
             >
-              <thead class="text-xs ">
+              <thead class="text-sm ">
                 <tr class="">
-                  <th class="text-left !bg-[#91bfff] text-white !font-semibold flex items-center gap-x-1.5">
+                  <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
                     <span class="!w-6">
                       No
                     </span>
@@ -336,16 +329,16 @@ onMounted (async () => {
                       Product
                     </span>
                   </th>
-                  <th class="text-left !bg-[#91bfff] text-white !font-semibold !w-fit">
+                  <th class="text-left !bg-primary text-white !font-semibold !w-fit">
                     <span>
                       Qnty
                     </span>
                   </th>
-                  <th class="text-left !bg-[#91bfff] text-white !font-semibold">
+                  <th class="text-left !bg-primary text-white !font-semibold">
                     Cost
                   </th>
 
-                  <th class="text-left !bg-[#91bfff] text-white !font-semibold">
+                  <th class="text-left !bg-primary text-white !font-semibold">
                     Sale
                   </th>
                 </tr>
@@ -357,15 +350,15 @@ onMounted (async () => {
                   class="w-full"
                 >
                   <td class="text-xs flex items-center  ">
-                    <span class="!w-8 font-semibold  ">
+                    <span class="!w-8  ">
                       {{ index + 1 }}
                     </span>
-                    <span class="w-full text-xs">
+                    <span class="w-full text-xs  font-semibold">
                       {{ item.name }}
                     </span>
                   </td>
 
-                  <td class="text-xs w-fit ">
+                  <td class="text-xs w-fit text-center ">
                     <span class="font-semibold mr-3"> {{ item.qnty }}</span>
                   </td>
                   <td class="text-xs w-fit ">
