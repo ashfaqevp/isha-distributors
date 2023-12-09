@@ -90,4 +90,11 @@ export default defineNuxtConfig({
       useVuetifyLabs: true,
     },
   },
+
+  runtimeConfig: {
+    public: {
+      distribution: process.env.DISTRIBUTION,
+    },
+  },
+
 })
