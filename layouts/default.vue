@@ -1,6 +1,6 @@
 <script setup>
 const router = useRouter()
-const selectedItem = ref(3)
+const selectedItem = ref(2)
 
 // const route = useRoute()
 console.log(router)
@@ -15,6 +15,10 @@ watch(() => router, () => {
 
   switch (path) {
     case '/shops' :
+      selectedItem.value = 2
+      return
+
+    case '/bill' :
       selectedItem.value = 2
       return
 

@@ -1,6 +1,5 @@
-import { ProductsAddDialog } from '#build/components';
 <script setup>
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -11,6 +10,7 @@ const emit = defineEmits(['update:modelValue', 'refresh'])
 const { db } = useFirebaseStore()
 
 const { productCategories } = useUtils()
+const { setToast } = useMainStore()
 
 const body = ref({})
 const form = ref()
@@ -18,7 +18,9 @@ const isOpen = ref(false)
 const loading = ref(false)
 const productLoading = ref(false)
 
-const toast = ref({ value: false, message: '', status: '' })
+const currentName = ref('')
+
+const productsList = ref([])
 
 function onCancel() {
   form.value.reset()
@@ -30,8 +32,13 @@ function onCancel() {
 async function updateProduct(productId) {
   const { valid } = await form.value.validate()
 
+  if (productsList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase()) && (body.value?.name.toLowerCase() !== currentName.value.toLowerCase())) {
+    setToast(true, 'This product name already exist!', 'error')
+    return
+  }
+
   if (!valid) {
-    toast.value = { value: true, message: 'Complete all required fields', status: 'error' }
+    setToast(true, 'complete all required fields', 'error')
     return
   }
 
@@ -41,12 +48,12 @@ async function updateProduct(productId) {
     const product = body.value
     const productRef = doc(db, 'products', productId)
     await updateDoc(productRef, product)
-    toast.value = { value: true, message: 'Product updated succesfully', status: 'success' }
+    setToast(true, 'Product updated succesfully', 'success')
     emit('refresh')
     onCancel()
   }
   catch (e) {
-    toast.value = { value: true, message: 'Error updating product', status: 'error' }
+    setToast(true, 'Product not updated', 'error')
     console.error(e)
   }
   finally {
@@ -59,10 +66,15 @@ async function getProduct(id) {
   try {
     const docRef = doc(db, 'products', id)
     const docSnapshot = await getDoc(docRef)
-    if (docSnapshot.exists())
+    if (docSnapshot.exists()) {
       body.value = docSnapshot.data()
-    else
-      console.log('Document does not exist')
+      currentName.value = body.value.name
+      body.value.price_b = body.value?.price_b || body.value?.price_a
+      body.value.price_c = body.value?.price_c || body.value?.price_a
+      body.value.price_d = body.value?.price_d || body.value?.price_a
+    }
+
+    else { console.log('Document does not exist') }
   }
   catch (error) {
     console.error('Error fetching data:', error)
@@ -79,6 +91,20 @@ watch(() => props?.modelValue?.length, () => {
     getProduct(props?.product?.id)
   }
 }, { deep: true, immediate: true })
+
+async function fetchProducts() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'))
+    productsList.value = querySnapshot.docs.map(doc => doc.data().name)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+onMounted (async () => {
+  await fetchProducts()
+})
 </script>
 
 <template>
@@ -88,7 +114,18 @@ watch(() => props?.modelValue?.length, () => {
     persistent
     width="514"
   >
-    <v-card title="Edit Product" class="w-full">
+    <v-card class="w-full">
+      <v-card-title>
+        <div class=" flex gap-x-3 mt-2 font-semibold ">
+          <button>
+            <Icon name="eva:arrow-back-outline" size="24" @click="onCancel" />
+          </button>
+          Edit Product
+        </div>
+      </v-card-title>
+
+      <hr class=" border-[1px]   w-full">
+
       <v-card-text v-if="productLoading" fluid>
         <div class=" w-full flex pt-6 pb-20 h-full justify-center">
           <v-progress-circular
@@ -105,8 +142,7 @@ watch(() => props?.modelValue?.length, () => {
             :rules="[v => !!v || '']"
             label="Product Name"
             required
-            variant="solo"
-            density="compact"
+            variant="outlined"
           />
 
           <v-select
@@ -115,8 +151,7 @@ watch(() => props?.modelValue?.length, () => {
             :rules="[v => !!v || '']"
             label="Category"
             required
-            variant="solo"
-            density="compact"
+            variant="outlined"
           />
 
           <v-row dense>
@@ -130,9 +165,8 @@ watch(() => props?.modelValue?.length, () => {
                 label="Price"
                 required
                 type="number"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -142,9 +176,8 @@ watch(() => props?.modelValue?.length, () => {
               <v-text-field
                 v-model="body.price_b"
                 label="Discount Price"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -157,9 +190,8 @@ watch(() => props?.modelValue?.length, () => {
               <v-text-field
                 v-model="body.price_c"
                 label="Special Price "
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -169,9 +201,8 @@ watch(() => props?.modelValue?.length, () => {
               <v-text-field
                 v-model="body.price_d"
                 label="Dealer Price"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -181,10 +212,9 @@ watch(() => props?.modelValue?.length, () => {
             :rules="[v => !!v || '']"
             label="Cost"
             required
-            variant="solo"
             type="number"
             prefix="₹"
-            density="compact"
+            variant="outlined"
           />
 
           <v-footer class="px-0 pt-0">
@@ -196,6 +226,8 @@ watch(() => props?.modelValue?.length, () => {
                 <v-btn
                   block
                   variant="outlined"
+                  height="44"
+                  class="!font-semibold"
                   :disabled="loading"
                   @click="onCancel"
                 >
@@ -211,6 +243,8 @@ watch(() => props?.modelValue?.length, () => {
                   block
                   flat
                   :loading="loading"
+                  height="44"
+                  class="!font-semibold"
                   @click="updateProduct(product.id)"
                 >
                   Update
@@ -222,15 +256,4 @@ watch(() => props?.modelValue?.length, () => {
       </v-card-text>
     </v-card>
   </v-dialog>
-
-  <v-snackbar
-    v-model="toast.value"
-    class="z-100 opacity-90"
-    :timeout="2000"
-    :color=" toast?.status === 'success' ? 'success' : 'error'"
-    absolute
-    top
-  >
-    <p>{{ toast?.message }}</p>
-  </v-snackbar>
 </template>

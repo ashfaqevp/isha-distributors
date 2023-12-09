@@ -40,13 +40,13 @@ function onCancel() {
 async function addShop() {
   const { valid } = await form.value.validate()
 
-  if (!valid) {
-    setToast(true, 'Complete all required fields', 'error')
+  if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
+    setToast(true, 'This shop name already exist!', 'error')
     return
   }
 
-  if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
-    setToast(true, 'This shop name already exist!', 'error')
+  if (!valid) {
+    setToast(true, 'Complete all required fields', 'error')
     return
   }
 
