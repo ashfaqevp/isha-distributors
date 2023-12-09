@@ -96,16 +96,16 @@ onMounted (async () => {
         >
           <thead class="">
             <tr class="">
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 No
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 Product
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 Qnty
               </th>
-              <th class="text-end !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-center text-sm !bg-primary text-white !font-semibold">
                 Amount
               </th>
             </tr>
@@ -115,16 +115,16 @@ onMounted (async () => {
             <tr
               v-for="(item, index) in stockList"
               :key="item.id"
-              class="w-full !py-10 !h-10 text-sm"
+              class="w-full !py-10 !h-10 text-xs"
             >
               <td>{{ index + 1 }}</td>
-              <td class="font-semibold w-fit text-sm">
+              <td class="font-semibold w-fit text-xs">
                 {{ item.name }}
               </td>
-              <td class="font-semibold text-sm">
+              <td class="font-semibold text-xs text-center">
                 {{ item.qnty }}
               </td>
-              <td class="text-end text-sm  !min-w-[120px]">
+              <td class="text-end text-xs  !min-w-[120px]">
                 {{ formatAsCurrency(item.qnty * item.cost) }}
               </td>
             </tr>
@@ -132,8 +132,12 @@ onMounted (async () => {
         </v-table>
       </div>
 
-      <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
+      <!-- <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
         No Data !
+      </div> -->
+
+      <div v-else class="h-full  w-full  flex  rounded-b-[10px] items-center justify-center mt-10">
+        <ImagesNoData class="scale-60 " />
       </div>
 
       <p v-if="!loading && stockList?.length" class=" py-3 text-end align-end">

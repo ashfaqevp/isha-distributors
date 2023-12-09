@@ -230,7 +230,7 @@ onMounted (async () => {
     </template>
   </v-app-bar>
 
-  <div class="z-30 sticky top-[60px] ">
+  <div class="z-30 sticky top-[63px] ">
     <v-sheet width="full" elevation="2" class="!w-full !h-fit  pb-3 ">
       <v-form ref="form" class="">
         <div class="py-2 grid grid-cols-6 gap-4 px-3 !gap-y-[18px]">
@@ -301,12 +301,6 @@ onMounted (async () => {
     <v-container fluid>
       <!-- <div class="flex flex-col h-full !px-0  " :class="`!h-[${700}px]`"> -->
       <div class="flex flex-col h-full !px-0  ">
-        <!-- <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
-          <v-progress-circular
-            indeterminate
-            color="primary"
-          />
-        </div> -->
         <div v-show="purchaseList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px] !bg-red mb-[68px] ">
           <v-table
             fixed-header
@@ -341,15 +335,15 @@ onMounted (async () => {
                 class="w-full"
               >
                 <td class="text-xs flex items-center  ">
-                  <span class="!w-8 font-semibold  ">
+                  <span class="!w-8   ">
                     {{ index + 1 }}
                   </span>
-                  <span class="w-full">
+                  <span class="w-full font-semibold">
                     {{ item.name }}
                   </span>
                 </td>
                 <td class="text-xs w-fit gap-x-3 ">
-                  <span class="font-semibold mr-3"> {{ item.qnty }}</span>
+                  <span class="font-semibold mr-3 "> {{ item.qnty }}</span>
                   <span class="font-100 !text-xs text-gray-400">x{{ item.price }}</span>
                 </td>
                 <td class=" text-start text-xs  !min-w-[130px] items-end relative  ">

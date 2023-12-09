@@ -5,9 +5,11 @@ const { db } = useFirebaseStore()
 const { setToast } = useMainStore()
 const router = useRouter()
 
-const today = new Date()
-const date = today.toISOString().split('T')[0]
-const monthYear = today.toISOString().slice(0, 7)
+const { formatAsCurrency } = useUtils()
+
+const getDate = new Date()
+const date = getDate.toISOString().split('T')[0]
+const monthYear = getDate.toISOString().slice(0, 7)
 
 const form = ref()
 const loading = ref(false)
@@ -127,36 +129,37 @@ onMounted (async () => {
 <template>
   <v-app-bar
     class="px-0 "
-    color="primary"
     :elevation="0"
   >
     <template #prepend>
       <v-app-bar-nav-icon class="mx-0">
-        <Icon name="eva:arrow-back-outline" size="24" @click="router.back()" />
+        <Icon name="eva:arrow-back-outline" size="24" @click=" router.push('/stocks')" />
       </v-app-bar-nav-icon>
     </template>
 
     <div class="flex justify-left w-full">
       <v-app-bar-title>
-        New Damage
+        <span class=" !font-semibold !text-xl ml-2 ">
+          New Damage
+        </span>
       </v-app-bar-title>
     </div>
   </v-app-bar>
 
-  <v-main class="bg-gray-50 !h-screen">
-    <v-sheet width="full" color="primary" class="!w-full !h-fit  pb-3 " :elevation="10">
+  <div class="z-30 sticky top-[63px] ">
+    <v-sheet width="full" elevation="2" class="!w-full !h-fit  pb-3 ">
       <v-form ref="form" class="">
-        <div class="py-2 grid grid-cols-6 gap-4 px-3">
+        <div class="py-2 grid grid-cols-6 gap-4 px-3 !gap-y-[18px]">
           <v-autocomplete
             v-model="body.product"
             :items="productList"
-            class="!h-[58px] col-span-3 !brightness-80 "
             label="Product"
             :rules="[v => !!v || '']"
             variant="outlined"
             required
             item-title="name"
-
+            class="!h-[48px] col-span-3 !brightness-80 "
+            density="comfortable"
             return-object
           />
 
@@ -167,44 +170,51 @@ onMounted (async () => {
             :rules="[v => !!v || '']"
             variant="outlined"
             required
-            class="!h-[58px] col-span-2 "
+            class="!h-[48px] col-span-2 !brightness-80 "
+            density="comfortable"
           />
 
           <v-btn
-            color="primary"
             size="small"
             rounded
-            class=" !h-[52px] !w-[52px] bg-white col-span-1 "
-            :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100'"
+            :class="(!body?.product?.id?.length || !body?.qnty?.length) ? '!opacity-50 ' : '!opacity-100 !text-white'"
+            class=" !h-[50px] !w-[50px] !bg-secondary  col-span-1 !text-white' "
             :disabled="saveLoading || loading "
             @click=" addProduct"
           >
-            <Icon name="material-symbols:add" size="36" />
+            <Icon name="material-symbols:add" size="36" class="text-white" />
           </v-btn>
         </div>
       </v-form>
     </v-sheet>
+  </div>
+
+  <v-main class="bg-gray-50 ">
     <v-container fluid>
-      <div class="flex flex-col !px-0">
-        <div v-if="stockList?.length" class="!h-full !shadow-md !rounded-[10px] ">
+      <div class="flex flex-col h-full !px-0  ">
+        <div v-show="stockList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px] ">
           <v-table
             fixed-header
+            :height="tableHeight > (screenHeight - 400) ? `${screenHeight - 400}px` : ''"
           >
             <thead class="">
-              <tr class="">
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
-                  No
+              <tr class=" text-sm">
+                <th class="text-left !bg-primary text-white !font-semibold flex items-center gap-x-1.5">
+                  <span class="!w-6">
+                    No
+                  </span>
+                  <span>
+                    Product
+                  </span>
                 </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
-                  Product
+                <th class="text-left !bg-primary text-white !font-semibold !w-fit">
+                  <span>
+                    Qnty
+                  </span>
                 </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
-                  Qnty
-                </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+                <th class="text-left !bg-primary text-white !font-semibold">
                   Amount
                 </th>
-                <th class="text-left !bg-[#8f9bc4] text-white !font-semibold" />
               </tr>
             </thead>
             <tbody>
@@ -213,28 +223,49 @@ onMounted (async () => {
                 :key="item.id"
                 class="w-full"
               >
-                <td>{{ index + 1 }}</td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.qnty }}</td>
-                <td>{{ item.qnty * item.cost }}</td>
-                <td class=" px-0" @click="stockList.splice(index, 1)">
-                  <Icon name="typcn:delete" color="red" size="28" />
+                <td class="text-xs flex items-center  ">
+                  <span class="!w-8   ">
+                    {{ index + 1 }}
+                  </span>
+                  <span class="w-full font-semibold">
+                    {{ item.name }}
+                  </span>
+                </td>
+                <td class="text-xs w-fit gap-x-3 text-center">
+                  <span class="font-semibold mr-3 text-center"> {{ item.qnty }}</span>
+                  <!-- <span class="font-100 !text-xs text-gray-400">x{{ item.cost }}</span> -->
+                </td>
+                <td class=" text-start text-xs  !min-w-[130px] items-end relative  ">
+                  {{ formatAsCurrency(item.qnty * item.cost) }}
+
+                  <span class=" absolute right-2.5 text-end ">
+                    <button @click="stockList?.splice(index, 1)">
+                      <Icon name="typcn:minus" color="red" size="19" class="bg-red-100 rounded-full p-[3px] " />
+                    </button>
+                  </span>
                 </td>
               </tr>
             </tbody>
           </v-table>
         </div>
 
-        <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
-          No Data !
+        <div v-if="!stockList?.length" class="!h-full flex items-center">
+          <ImagesNoData class="!scale-20 relative bottom-1" />
         </div>
       </div>
     </v-container>
-
-    <div class="h-fit w-full absolute bottom-0 !w-full !px-10 py-6 ">
-      <v-btn color="primary" size="x-large" class=" !w-full !text-sm  !font-bold" :loading="saveLoading" rounded @click="addToDamge()">
-        ADD TO DAMAGE
-      </v-btn>
-    </div>
   </v-main>
+
+  <div class="h-fit w-full !fixed !bottom-[76px]   !w-full !px-10  ">
+    <v-btn :disabled="!stockList?.length" size="x-large" class="!text-white !w-full !text-sm !font-semibold !bg-secondary" :loading="saveLoading" rounded @click="addToDamge()">
+      <span class="mr-4">
+        {{ 'ADD TO DAMAGE' }}
+      </span>
+      <!-- <span class="text-sm !font-semibold">
+        {{ `${formatAsCurrency(total || 0)}` }}
+      </span> -->
+    </v-btn>
+  </div>
+
+  <BaseOverlay v-if="saveLoading" />
 </template>

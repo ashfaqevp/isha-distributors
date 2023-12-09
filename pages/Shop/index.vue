@@ -241,7 +241,7 @@ const openDeleteItem = ref(false)
         <!-- TODAY -->
         <v-card v-if="todayData?.total || todayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
           <v-card-title class="  py-3 !bg-primary !text-white  ">
-            <div class=" flex justify-between font-semibold ">
+            <div class=" flex justify-between text-[18px] font-semibold ">
               Today
               <button>
                 <Icon name="ic:baseline-share" class="" />
@@ -374,7 +374,7 @@ const openDeleteItem = ref(false)
 
         <v-card v-if="lastdayData?.total || lastdayData?.cash" class="!mt-4 mb-5 !rounded-[8px]">
           <v-card-title class="  py-3 !bg-primary !text-white  ">
-            <div class=" flex justify-between font-semibold ">
+            <div class=" flex justify-between text-[18px] font-semibold ">
               {{ moment(lastPurchaseDate).format('DD MMM dddd') }}
               <button>
                 <Icon name="ic:baseline-share" class="" />
