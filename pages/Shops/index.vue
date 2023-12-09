@@ -166,7 +166,7 @@ function goToShop(id) {
       <v-text-field
         v-model="searchName"
         class="px-3 "
-        placeholder="Search Products"
+        placeholder="Search Shops"
         density="compact"
         dense
         flat
@@ -178,8 +178,8 @@ function goToShop(id) {
     </div>
   </v-app-bar>
 
-  <v-main class="bg-gray-50 h-screen ">
-    <v-container v-if="loading" fluid class="bg-gray-50">
+  <v-main class="bg-gray-50 !h-screen ">
+    <v-container v-if="loading" class="!bg-gray-50">
       <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
         <v-progress-circular
           indeterminate
@@ -195,7 +195,7 @@ function goToShop(id) {
       <ImagesNoData class="scale-60 " />
     </div>
 
-    <v-container v-else fluid class="bg-gray-50 !px-1 !py-1 ">
+    <v-container v-else fluid class="!bg-gray-50 !px-1 !py-1 ">
       <v-list
         v-for="(shop, index) in (!filter.length ? (filterdShops)
           : filter === 'pending_sort' ? pendingSortedShops : (filterdShops.filter(item => (item.place === filterPlace))))"

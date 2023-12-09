@@ -40,13 +40,15 @@ function onCancel() {
 async function addShop() {
   const { valid } = await form.value.validate()
 
-  if (!valid) {
-    setToast(true, 'Complete all required fields', 'error')
-    return
-  }
+
 
   if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
     setToast(true, 'This shop name already exist!', 'error')
+    return
+  }
+
+  if (!valid) {
+    setToast(true, 'Complete all required fields', 'error')
     return
   }
 
@@ -54,7 +56,10 @@ async function addShop() {
 
   try {
     const shop = body.value
-    const dbRef = collection(db, 'shops')
+    const dbRe  if (shopNameList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
+    setToast(true, 'This shop name already exist!', 'error')
+    return
+  }f = collection(db, 'shops')
     await addDoc(dbRef, shop)
     setToast(true, 'Shop added to shop successfully', 'success')
     emit('refresh')

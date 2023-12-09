@@ -72,27 +72,24 @@ onMounted (async () => {
 
 <template>
   <v-app-bar
-    class="px-0"
-    color="primary"
+    class="px-0 "
+    elevation="2"
+    height="60"
   >
-    <template v-if="!openSearch" #prepend>
-      <v-app-bar-nav-icon class="mx-0">
-        <Icon name="eva:arrow-back-outline" size="22" @click="router.back()" />
-      </v-app-bar-nav-icon>
-    </template>
-
     <div v-if="!openSearch" class="flex justify-left w-full">
       <v-app-bar-title>
-        Products
+        <span class=" font-bold text-xl ml-6 ">
+          Products
+        </span>
       </v-app-bar-title>
     </div>
 
     <template v-if="!openSearch" #append>
       <v-app-bar-nav-icon @click="openSearch = true">
-        <Icon name="gg:search" size="22" />
+        <Icon name="gg:search" size="24" />
       </v-app-bar-nav-icon>
       <v-app-bar-nav-icon @click="openAddProduct = true ">
-        <Icon name="gg:add" size="22" />
+        <Icon name="gg:add" size="24" />
       </v-app-bar-nav-icon>
     </template>
 
@@ -116,12 +113,12 @@ onMounted (async () => {
     <div v-if="openSearch" class="w-full  mt-3 pt-2 ">
       <v-text-field
         v-model="searchName"
-        class="flex-full-width px-3 my-3 opacity-80"
+        class="flex-full-width px-3 my-3 brightness-10"
         placeholder="Search Products"
-        rounded
-        theme="light"
-        variant="solo"
         density="compact"
+        dense
+        flat
+        filled
       >
         <Icon slot="prepend-inner-icon" name="gg:search" size="18" class=" mt-[6px] mr-3" />
         <Icon slot="append-inner-icon" name="gg:close" size="18" class=" absolute  mt-[6px]  right-5 cursor-pointer" @click="openSearch = flase ; searchName = ''" />
@@ -130,7 +127,7 @@ onMounted (async () => {
   </v-app-bar>
 
   <v-main class="bg-gray-50 h-screen">
-    <v-container v-if="loading" fluid>
+    <v-container v-if="loading" fluid class="bg-gray-50">
       <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
         <v-progress-circular
           indeterminate
@@ -139,7 +136,7 @@ onMounted (async () => {
       </div>
     </v-container>
 
-    <v-container v-else fluid>
+    <v-container v-else class="bg-gray-50" fluid>
       <v-row dense>
         <v-col
           v-for="(product, index) in filterdProducts"
@@ -160,11 +157,11 @@ onMounted (async () => {
               <v-avatar size="48" class="mb-3" :color="getProductIcon(product?.category).color">
                 <Icon :name="getProductIcon(product?.category).name" size="24" color="white" />
               </v-avatar>
-              <p class="text-md font-semibold truncate">
+              <p class="text-sm font-semibold truncate">
                 {{ product?.name }}
               </p>
-              <span class="text-sm">Price : </span>
-              <span class="text-sm font-semibold text-grey-600">{{ formatAsCurrency(product?.price_a) }}</span>
+              <span class="text-[12px] text-slate-400">Price : </span>
+              <span class="text-[12px] font-semibold text-slate-400">{{ formatAsCurrency(product?.price_a) }}</span>
 
               <button class="absolute -top-1 -right-2 rounded-full hover:bg-gray-100 px-1  pb-1">
                 <Icon name="icon-park-outline:more-one" size="22" />

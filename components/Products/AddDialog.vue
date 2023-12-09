@@ -1,5 +1,5 @@
 <script setup>
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, getDocs } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -9,13 +9,14 @@ const emit = defineEmits(['update:modelValue', 'refresh'])
 const { db } = useFirebaseStore()
 
 const { productCategories } = useUtils()
+const { setToast } = useMainStore()
 
 const body = ref({})
 const form = ref()
 const isOpen = ref(false)
 const loading = ref(false)
 
-const toast = ref({ value: false, message: '', status: '' })
+const productsList = ref([])
 
 watch(() => props?.modelValue?.length, () => {
   if (props?.modelValue)
@@ -32,29 +33,51 @@ function onCancel() {
 async function addProduct() {
   const { valid } = await form.value.validate()
 
+  if (productsList.value.some(name => name.toLowerCase() === body.value?.name.toLowerCase())) {
+    setToast(true, 'This product name already exist!', 'error')
+    return
+  }
+
   if (!valid) {
-    toast.value = { value: true, message: 'complete all required fields', status: 'error' }
+    setToast(true, 'complete all required fields', 'error')
     return
   }
 
   loading.value = true
 
   try {
+    body.value.price_b = body.value?.price_b || body.value?.price_a
+    body.value.price_c = body.value?.price_c || body.value?.price_a
+    body.value.price_d = body.value?.price_d || body.value?.price_a
     const product = body.value
     const dbRef = collection(db, 'products')
     const addedDocRef = await addDoc(dbRef, product)
-    toast.value = { value: true, message: 'New product added', status: 'success' }
+    setToast(true, 'New product added', 'success')
     emit('refresh')
     onCancel()
   }
   catch (e) {
-    toast.value = { value: true, message: 'Product not saved', status: 'error' }
+    setToast(true, 'Product not saved', 'error')
     console.error(e)
   }
   finally {
     loading.value = false
   }
 }
+
+async function fetchProducts() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'))
+    productsList.value = querySnapshot.docs.map(doc => doc.data().name)
+  }
+  catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+onMounted (async () => {
+  await fetchProducts()
+})
 </script>
 
 <template>
@@ -64,8 +87,17 @@ async function addProduct() {
     persistent
     width="420"
   >
-    <v-card title="Add New Product" class="w-full">
-      <v-divider class="my-2" />
+    <v-card class="w-full">
+      <v-card-title>
+        <div class=" flex gap-x-3 mt-2 font-semibold ">
+          <button>
+            <Icon name="eva:arrow-back-outline" size="24" @click="onCancel" />
+          </button>
+          Add Product
+        </div>
+      </v-card-title>
+
+      <hr class=" border-[1px]   w-full">
       <v-card-text>
         <v-form ref="form" class="mt-1">
           <v-text-field
@@ -82,8 +114,7 @@ async function addProduct() {
             :rules="[v => !!v || '']"
             label="Category"
             required
-            variant="solo"
-            density="compact"
+            variant="outlined"
           />
 
           <v-row dense>
@@ -97,9 +128,8 @@ async function addProduct() {
                 label="Price"
                 required
                 type="number"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -109,9 +139,8 @@ async function addProduct() {
               <v-text-field
                 v-model="body.price_b"
                 label="Discount Price"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -124,9 +153,8 @@ async function addProduct() {
               <v-text-field
                 v-model="body.price_c"
                 label="Special Price "
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -136,9 +164,8 @@ async function addProduct() {
               <v-text-field
                 v-model="body.price_d"
                 label="Dealer Price"
-                variant="solo"
                 prefix="₹"
-                density="compact"
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -148,10 +175,9 @@ async function addProduct() {
             :rules="[v => !!v || '']"
             label="Cost"
             required
-            variant="solo"
             type="number"
             prefix="₹"
-            density="compact"
+            variant="outlined"
           />
 
           <v-footer class="px-0 pt-0">
@@ -161,9 +187,10 @@ async function addProduct() {
                 sm="6"
               >
                 <v-btn
-                  color="gray"
-                  variant="outlined"
                   block
+                  variant="outlined"
+                  height="44"
+                  class="!font-semibold"
                   :disabled="loading"
                   @click="onCancel"
                 >
@@ -177,7 +204,10 @@ async function addProduct() {
                 <v-btn
                   color="primary"
                   block
+                  flat
                   :loading="loading"
+                  height="44"
+                  class="!font-semibold"
                   @click="addProduct"
                 >
                   Save
@@ -189,15 +219,4 @@ async function addProduct() {
       </v-card-text>
     </v-card>
   </v-dialog>
-
-  <v-snackbar
-    v-model="toast.value"
-    class="z-100 opacity-90"
-    :timeout="2000"
-    :color=" toast?.status === 'success' ? 'success' : 'error'"
-    absolute
-    top
-  >
-    <p>{{ toast?.message }}</p>
-  </v-snackbar>
 </template>
