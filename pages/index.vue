@@ -77,10 +77,6 @@ onMounted (async () => {
   // await fetchPlaces()
   // loading.value = false
 })
-
-function goToShop(id) {
-  router.push({ path: '/shop', query: { id } })
-}
 </script>
 
 <template>

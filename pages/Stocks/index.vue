@@ -52,27 +52,25 @@ onMounted (async () => {
   // await fetchCurrentStock()
 })
 
-// TODO: NEED TO FETCHALL PRODUCTS AND CURRENT STOCK FROM HERE AND UPDATE WHILE DELETING STOCK
+// TODO: NEED TO FETCH ALL PRODUCTS AND CURRENT STOCK FROM HERE AND UPDATE WHILE DELETING STOCK
 </script>
 
 <template>
   <v-app-bar
     class="px-0"
-    color="primary"
   >
-    <template #prepend>
-      <v-app-bar-nav-icon class="mx-0">
-        <Icon name="eva:arrow-back-outline" size="24" @click="router.back()" />
-      </v-app-bar-nav-icon>
-    </template>
-
-    <div class="flex justify-left w-full">
+    <div class="flex justify-left w-full ml-6">
       <v-app-bar-title>
-        Stocks
+        <span class=" font-bold text-xl  ">
+          Stocks
+        </span>
       </v-app-bar-title>
     </div>
 
     <template #append>
+      <v-app-bar-nav-icon>
+        <Icon name="ic:outline-history" size="24" />
+      </v-app-bar-nav-icon>
       <v-app-bar-nav-icon @click="openAdd">
         <Icon name="gg:add" size="24" />
       </v-app-bar-nav-icon>
@@ -89,7 +87,9 @@ onMounted (async () => {
             :key="item"
             :value="item"
           >
-            {{ item }}
+            <span :class=" tab === item ? 'font-semibold ' : ''">
+              {{ item }}
+            </span>
           </v-tab>
         </v-tabs>
       </div>
@@ -97,7 +97,7 @@ onMounted (async () => {
   </v-app-bar>
 
   <v-main class="bg-gray-50 h-screen ">
-    <v-window v-model="tab">
+    <v-window v-model="tab" color="primary">
       <v-window-item value="Current">
         <StocksCurrent />
       </v-window-item>

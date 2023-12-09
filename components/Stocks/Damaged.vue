@@ -1,5 +1,6 @@
 <script setup>
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import moment from 'moment'
 
 const { db } = useFirebaseStore()
 const { formatAsCurrency } = useUtils()
@@ -61,18 +62,20 @@ onMounted (async () => {
         >
           <thead class="">
             <tr class="">
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left !bg-primary text-sm text-white !font-semibold">
                 No
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left !bg-primary text-sm text-white !font-semibold">
                 Product
               </th>
-              <th class=" text-center !bg-[#8f9bc4] text-white !font-semibold">
+              <th class=" text-center !bg-primary text-sm text-white !font-semibold">
                 Qnty
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left !bg-primary text-sm text-white !font-semibold">
                 Date
               </th>
+
+              <th class="text-left !bg-primary text-sm text-white !font-semibold" />
             </tr>
           </thead>
 
@@ -80,26 +83,28 @@ onMounted (async () => {
             <tr
               v-for="(item, index) in damagedList"
               :key="item.id"
-              class="w-full !py-10 !h-10 text-sm "
+              class="w-full !py-10 !h-10 text-xs "
             >
-              <td class="font-semibold w-fit text-sm  ">
+              <td class="w-fit text-xs  ">
                 {{ index + 1 }}
               </td>
-              <td class="font-semibold w-fit text-sm  ">
+              <td class="font-semibold w-fit text-xs ">
                 {{ item.name }}
               </td>
-              <td class="font-semibold text-sm text-center ">
+              <td class="font-semibold text-xs text-center ">
                 {{ item.qnty }}
               </td>
-              <td class="text-start text-sm  !min-w-[130px] items-end relative ">
-                {{ item.date }}
+              <td class="text-start text-xs  items-end relative ">
+                {{ moment(item.date).format('DD MMM YYYY') }}
+              </td>
 
-                <span class=" absolute right-1 text-end ">
+              <td>
+                <span class=" text-end ">
                   <button>
                     <Icon name="icon-park-outline:more-one" size="22" class="" />
                   </button>
 
-                  <v-menu activator="parent" width="100px" class="!w-[50px]">
+                  <v-menu activator="parent" width="110px" class="!w-[50px]">
                     <v-list>
                       <v-list-item @click="openDeleteStock = true ; selectedStock = item">
                         <template #append>
@@ -118,8 +123,8 @@ onMounted (async () => {
         </v-table>
       </div>
 
-      <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
-        No Data !
+      <div v-else class="h-full  w-full  flex  rounded-b-[10px] items-center justify-center mt-10">
+        <ImagesNoData class="scale-60 " />
       </div>
 
       <p v-if="!loading && damagedList?.length" class=" py-3 text-end align-end">

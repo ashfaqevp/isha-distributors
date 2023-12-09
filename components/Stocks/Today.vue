@@ -2,10 +2,7 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
-const { formatAsCurrency } = useUtils()
-
-const today = new Date()
-const date = today.toISOString().split('T')[0]
+const { formatAsCurrency, today } = useUtils()
 
 const loading = ref(false)
 const todayStocks = ref({})
@@ -35,7 +32,7 @@ async function fetchProducts() {
 async function fetchTodayStock() {
   loading.value = true
   try {
-    const docRef = doc(db, 'purchase_history', date)
+    const docRef = doc(db, 'purchase_history', today)
     const docSnapshot = await getDoc(docRef)
     if (docSnapshot.exists())
       todayStocks.value = docSnapshot.data()
@@ -97,16 +94,16 @@ onMounted (async () => {
         >
           <thead class="">
             <tr class="">
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 No
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 Product
               </th>
-              <th class=" text-center !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 Qnty
               </th>
-              <th class="text-left !bg-[#8f9bc4] text-white !font-semibold">
+              <th class="text-left text-sm !bg-primary text-white !font-semibold">
                 Amount
               </th>
             </tr>
@@ -116,18 +113,18 @@ onMounted (async () => {
             <tr
               v-for="(item, index) in stockList"
               :key="item.id"
-              class="w-full !py-10 !h-10 text-sm "
+              class="w-full !py-10 !h-10 text-xs "
             >
-              <td class="font-semibold w-fit text-sm  ">
+              <td class=" w-fit text-xs  ">
                 {{ index + 1 }}
               </td>
-              <td class="font-semibold w-fit text-sm  ">
+              <td class="font-semibold w-fit text-xs ">
                 {{ item.name }}
               </td>
-              <td class="font-semibold text-sm text-center ">
+              <td class="font-semibold text-xs text-center ">
                 {{ item.qnty }}
               </td>
-              <td class="text-start text-sm  !min-w-[130px] items-end relative ">
+              <td class="text-start text-xs  !min-w-[130px] items-end relative ">
                 {{ formatAsCurrency(item.qnty * item.cost) }}
 
                 <span class=" absolute right-1 text-end ">
@@ -135,7 +132,7 @@ onMounted (async () => {
                     <Icon name="icon-park-outline:more-one" size="22" class="" />
                   </button>
 
-                  <v-menu activator="parent" width="100px" class="!w-[50px]">
+                  <v-menu activator="parent" width="110px" class="!w-[50px]">
                     <v-list>
                       <v-list-item @click="openDeleteStock = true ; selectedStock = item">
                         <template #append>
@@ -154,8 +151,8 @@ onMounted (async () => {
         </v-table>
       </div>
 
-      <div v-else class="w-full flex items-center justify-center !h-[300px] rounded-[10px]">
-        No Data !
+      <div v-else class="h-full  w-full  flex  rounded-b-[10px] items-center justify-center mt-10">
+        <ImagesNoData class="scale-60 " />
       </div>
 
       <p v-if="!loading && stockList?.length" class=" py-3 text-end align-end">
