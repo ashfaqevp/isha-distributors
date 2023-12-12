@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     manifest: {
       name: 'Isha Distributors',
-      short_name: 'IshaDistributors',
+      short_name: process.env.DISTRIBUTION === 'isha_maravattam' ? 'Isha Maravattam' : 'Isha Product',
       theme_color: '#ffffff',
       icons: [
         {

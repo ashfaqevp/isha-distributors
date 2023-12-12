@@ -137,6 +137,9 @@ onMounted (async () => {
     </v-container>
 
     <v-container v-else class="bg-gray-50" fluid>
+      <div v-if="!filterdProducts?.length" class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]">
+        <ImagesNoData class="scale-40 " />
+      </div>
       <v-row dense>
         <v-col
           v-for="(product, index) in filterdProducts"
