@@ -308,9 +308,9 @@ onMounted (async () => {
             <div v-if="saleLoading || loading" class="h-20 bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
               <Icon name="eos-icons:loading" size="28" color="primary" />
             </div>
-            <!-- <div v-else class="!h-[200px] bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
+            <div v-else class="!h-[200px] bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
               <ImagesNoData class="scale-50 " />
-            </div> -->
+            </div>
           </div>
 
           <div v-else id="table-stock" class="!h-full !shadow-md !rounded-[10px] ">

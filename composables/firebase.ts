@@ -6,6 +6,8 @@ import { getAuth } from 'firebase/auth'
 import { doc, getFirestore } from 'firebase/firestore'
 
 export const useFirebaseStore = defineStore('firebaseStore', () => {
+  const config = useRuntimeConfig()
+
   const firebaseConfig = {
     apiKey: 'AIzaSyDdfFJxVYI764viosQSQuawubCq4Mtg4Rs',
     authDomain: 'ishadistributors-9627a.firebaseapp.com',
@@ -16,9 +18,11 @@ export const useFirebaseStore = defineStore('firebaseStore', () => {
     measurementId: 'G-SZY0RHRVB1',
   }
 
+  console.log(config.public.distribution)
+
   const app = initializeApp(firebaseConfig)
   const firestoreDB = getFirestore(app)
-  const db = doc(firestoreDB, 'distributions', 'isha_maravattam')
+  const db = doc(firestoreDB, 'distributions', config.public.distribution)
   return {
     db,
     firestoreDB,
