@@ -42,6 +42,14 @@ watch(() => router, () => {
       selectedItem.value = 4
       return
 
+    case '/profile' :
+      selectedItem.value = 4
+      return
+
+    case '/places' :
+      selectedItem.value = 4
+      return
+
     default:
       selectedItem.value = 2
   }
@@ -71,7 +79,41 @@ watch(() => router, () => {
           <Icon :name=" selectedItem === 3 ? 'material-symbols:list-alt' : 'material-symbols:list-alt-outline'" :class="selectedItem === 3 ? '!text-primary text-[32px]' : 'text-[26px]'" />
         </v-btn>
 
-        <v-btn :active="selectedItem === 4" @click="navigate('/products')">
+        <v-btn :active="selectedItem === 4" @click="selectedItem = 4">
+          <v-menu activator="parent" width="180px" class="!w-[50px]" :persistent="selectedItem === 4">
+            <v-list>
+              <v-list-item :class="router.currentRoute.value?.path === '/profile' ? 'text-primary font-semibold' : ''" @click="navigate('/profile')">
+                <template #append>
+                  <Icon name="iconamoon:profile-fill" size="26" />
+                </template>
+                <v-list-item-title>
+                  Profile
+                </v-list-item-title>
+              </v-list-item>
+
+              <hr>
+
+              <v-list-item :class="router.currentRoute.value?.path === '/places' ? 'text-primary font-semibold' : ''" @click="navigate('/places')">
+                <template #append>
+                  <Icon name="ic:baseline-place" size="26" />
+                </template>
+                <v-list-item-title>
+                  Places
+                </v-list-item-title>
+              </v-list-item>
+
+              <hr>
+
+              <v-list-item :class="router.currentRoute.value?.path === '/products' ? 'text-primary font-semibold' : ''" @click="navigate('/products')">
+                <template #append>
+                  <Icon name="ep:menu" size="24" />
+                </template>
+                <v-list-item-title>
+                  Products
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
           <Icon :name=" selectedItem === 4 ? 'mingcute:more-3-fill' : 'mingcute:more-3-line'" :class="selectedItem === 4 ? '!text-primary text-[34px]' : 'text-[26px]'" />
         </v-btn>
       </v-bottom-navigation>
