@@ -1,9 +1,37 @@
 <script setup>
+import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+
+const { firestoreDB, auth } = useFirebaseStore()
+
 const router = useRouter()
 const selectedItem = ref(2)
 
-// const route = useRoute()
-console.log(router)
+const loading = ref(false)
+const adminList = ref([])
+const isAdmin = ref(false)
+
+async function fetchAdmins() {
+  try {
+    loading.value = true
+    const docRef = doc(firestoreDB, 'users', 'admins')
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists()) {
+      adminList.value = docSnapshot.data().admin_list || []
+
+      const email = auth?.currentUser?.email
+      const emailMatches = adminList.value.includes(email)
+
+      if (emailMatches)
+        isAdmin.value = true
+    }
+  }
+  catch (error) {
+    console.error('Error fetching Places:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
 function navigate(route) {
   router.push({ path: route })
@@ -50,10 +78,18 @@ watch(() => router, () => {
       selectedItem.value = 4
       return
 
+    case '/users' :
+      selectedItem.value = 4
+      return
+
     default:
       selectedItem.value = 2
   }
 }, { deep: true, immediate: true })
+
+onMounted (async () => {
+  await fetchAdmins()
+})
 </script>
 
 <template>
@@ -84,7 +120,7 @@ watch(() => router, () => {
             <v-list>
               <v-list-item :class="router.currentRoute.value?.path === '/profile' ? 'text-primary font-semibold' : ''" @click="navigate('/profile')">
                 <template #append>
-                  <Icon name="iconamoon:profile-fill" size="26" />
+                  <Icon name="iconamoon:profile-fill" size="24" />
                 </template>
                 <v-list-item-title>
                   Profile
@@ -92,6 +128,19 @@ watch(() => router, () => {
               </v-list-item>
 
               <hr>
+
+              <div v-if="isAdmin">
+                <v-list-item :class="router.currentRoute.value?.path === '/users' ? 'text-primary font-semibold' : ''" @click="navigate('/users')">
+                  <template #append>
+                    <Icon name="mdi:users" size="27" />
+                  </template>
+                  <v-list-item-title>
+                    Users
+                  </v-list-item-title>
+                </v-list-item>
+
+                <hr>
+              </div>
 
               <v-list-item :class="router.currentRoute.value?.path === '/places' ? 'text-primary font-semibold' : ''" @click="navigate('/places')">
                 <template #append>
