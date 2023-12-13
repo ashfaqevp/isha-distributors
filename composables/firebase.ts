@@ -23,7 +23,11 @@ export const useFirebaseStore = defineStore('firebaseStore', () => {
   const app = initializeApp(firebaseConfig)
   const firestoreDB = getFirestore(app)
   const db = doc(firestoreDB, 'distributions', config.public.distribution)
+
+  const auth = getAuth(app)
+
   return {
+    auth,
     db,
     firestoreDB,
   }
