@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 const props = defineProps({
   modelValue: Boolean,
-  placesList: Array,
+  userList: Array,
   index: Number,
 })
 
@@ -28,18 +28,17 @@ async function deleteItem() {
   loading.value = true
 
   try {
-    const currentPlaces = [...props.placesList]
-    // const newPlaceList = { place_list: currentPlaces.splice(props.index, 1) }
-    const newPlaceList = { place_list: [...currentPlaces.slice(0, props.index), ...currentPlaces.slice(props.index + 1)] }
-    const updateRef = doc(db, 'others', 'places')
-    await setDoc(updateRef, newPlaceList)
+    const currentUsers = [...props.userList]
+    const newUserList = { user_list: [...currentUsers.slice(0, props.index), ...currentUsers.slice(props.index + 1)] }
+    const updateRef = doc(db, 'others', 'users')
+    await setDoc(updateRef, newUserList)
 
-    setToast(true, 'Place deleted successfully', 'success')
+    setToast(true, 'User deleted successfully', 'success')
     emit('refresh')
     onCancel()
   }
   catch (e) {
-    setToast(true, 'Place not deleted', 'error')
+    setToast(true, 'User not deleted', 'error')
     console.error(e)
   }
   finally {
@@ -54,10 +53,10 @@ async function deleteItem() {
     persistent
     width="514"
   >
-    <v-card title="Delete Place" class="w-full">
+    <v-card title="Delete User" class="w-full">
       <v-card-text>
         <div class="mb-5">
-          Are you sure want to delete this place?
+          Are you sure want to delete this user?
         </div>
 
         <v-footer class="px-0 pt-0">

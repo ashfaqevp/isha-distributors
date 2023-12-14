@@ -297,7 +297,7 @@ onMounted (async () => {
   </div>
 
   <!-- <div class="relative h-full"> -->
-  <v-main class="bg-gray-50  ">
+  <v-main class="bg-gray-50 h-full ">
     <v-container fluid>
       <!-- <div class="flex flex-col h-full !px-0  " :class="`!h-[${700}px]`"> -->
       <div class="flex flex-col h-full !px-0  ">

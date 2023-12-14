@@ -1,60 +1,36 @@
 <script setup>
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 
 const { db } = useFirebaseStore()
 
-const shopList = ref([])
-const placesList = ref([])
+const userList = ref([])
 
 const selectedIndex = ref(0)
 
-const openAddPlace = ref(false)
-const openDeletePlace = ref(false)
+const openAddUser = ref(false)
+const openDeleteUser = ref(false)
 
 const loading = ref(false)
 
-async function fetchShops() {
+async function fetchUsers() {
   try {
     loading.value = true
-    const querySnapshot = await getDocs(collection(db, 'shops'))
-    shopList.value = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
-  }
-  catch (error) {
-    console.error('Error fetching data:', error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-async function fetchPlaces() {
-  try {
-    loading.value = true
-    const docRef = doc(db, 'others', 'places')
+    const docRef = doc(db, 'others', 'users')
     const docSnapshot = await getDoc(docRef)
     if (docSnapshot.exists())
-      placesList.value = docSnapshot.data().place_list || []
+      userList.value = docSnapshot.data().user_list || []
   }
   catch (error) {
-    console.error('Error fetching Places:', error)
+    console.error('Error fetching Users:', error)
   }
   finally {
     loading.value = false
   }
-}
-
-function getShopCount(place) {
-  const count = shopList.value?.filter(item => item.place === place).length
-  return count
 }
 
 onMounted (async () => {
   loading.value = true
-  await fetchShops()
-  await fetchPlaces()
+  await fetchUsers()
 })
 </script>
 
@@ -73,13 +49,13 @@ onMounted (async () => {
 
     <template #append>
       <v-app-bar-nav-icon>
-        <Icon name="gg:add" size="24" @click="openAddPlace = true" />
+        <Icon name="gg:add" size="24" @click="openAddUser = true" />
       </v-app-bar-nav-icon>
     </template>
   </v-app-bar>
 
   <v-main class="bg-gray-50 ">
-    <!-- <v-container id="qq" fluid class="">
+    <v-container id="qq" fluid class="">
       <div class="flex flex-col !px-0  ">
         <div v-if="loading" class=" w-full flex py-20 h-full justify-center">
           <v-progress-circular
@@ -88,7 +64,7 @@ onMounted (async () => {
           />
         </div>
 
-        <div v-else-if="placesList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
+        <div v-else-if="userList?.length" id="table-list" class="!h-full !shadow-md !rounded-[10px]">
           <v-table
             fixed-header
           >
@@ -98,11 +74,11 @@ onMounted (async () => {
                   No
                 </th>
                 <th class="text-left text-sm  !bg-primary text-white !font-semibold">
-                  Places
+                  User
                 </th>
-                <th class="text-center text-sm  !bg-primary text-white !font-semibold">
+                <!-- <th class="text-center text-sm  !bg-primary text-white !font-semibold">
                   Shops
-                </th>
+                </th> -->
 
                 <th class="text-end text-sm  !bg-primary text-white !font-semibold">
                   {{ '' }}
@@ -112,7 +88,7 @@ onMounted (async () => {
 
             <tbody class="text-sm">
               <tr
-                v-for="(item, index) in placesList"
+                v-for="(item, index) in userList"
                 :key="item"
                 class="w-full !py-10 !h-10 text-sm"
               >
@@ -123,10 +99,6 @@ onMounted (async () => {
                   {{ item }}
                 </td>
 
-                <td class="w-fit text-xs text-center">
-                  {{ getShopCount(item) }}
-                </td>
-
                 <td class="text-end text-xs ">
                   <span class="  text-end ">
                     <button>
@@ -135,7 +107,7 @@ onMounted (async () => {
 
                     <v-menu activator="parent" width="110px" class="!w-[50px]">
                       <v-list>
-                        <v-list-item @click="openDeletePlace = true ; selectedIndex = index">
+                        <v-list-item @click="openDeleteUser = true ; selectedIndex = index">
                           <template #append>
                             <Icon name="mdi:delete-outline" size="18" />
                           </template>
@@ -152,13 +124,13 @@ onMounted (async () => {
           </v-table>
         </div>
 
-        <div v-else-if="!placesList?.length" class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]">
+        <div v-else-if="!userList?.length" class="!h-[200px]  w-full  flex  rounded-b-[10px] items-center justify-center mt-[200px]">
           <ImagesNoData class="scale-40 " />
         </div>
       </div>
-    </v-container> -->
+    </v-container>
   </v-main>
 
-  <PlacesDialogAdd v-model="openAddPlace" :places-list="placesList" @refresh="fetchPlaces" />
-  <PlacesDialogDelete v-model="openDeletePlace" :places-list="placesList" :index="selectedIndex" @refresh="fetchPlaces" />
+  <UsersDialogAdd v-model="openAddUser" :user-list="userList" @refresh="fetchUsers" />
+  <UsersDialogDelete v-model="openDeleteUser" :user-list="userList" :index="selectedIndex" @refresh="fetchUsers" />
 </template>

@@ -1,9 +1,12 @@
 <script setup>
 import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, setDoc } from 'firebase/firestore'
 
-const { db } = useFirebaseStore()
+const { firestoreDB, auth, db } = useFirebaseStore()
 const { formatAsCurrency } = useUtils()
 const router = useRouter()
+
+const adminList = ref([])
+const isAdmin = ref(false)
 
 const today = new Date()
 const date = today.toISOString().split('T')[0]
@@ -24,6 +27,29 @@ const saleLoading = ref(false)
 
 function gotoShops() {
   router.push({ path: '/shops' })
+}
+
+async function fetchAdmins() {
+  try {
+    loading.value = true
+    const docRef = doc(firestoreDB, 'users', 'admins')
+    const docSnapshot = await getDoc(docRef)
+    if (docSnapshot.exists()) {
+      adminList.value = docSnapshot.data().admin_list || []
+
+      const email = auth?.currentUser?.email
+      const emailMatches = adminList.value.includes(email)
+
+      if (emailMatches)
+        isAdmin.value = true
+    }
+  }
+  catch (error) {
+    console.error('Error fetching Admins:', error)
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 async function fetchProducts() {
@@ -210,6 +236,7 @@ const screenHeight = ref(0)
 
 onMounted (async () => {
   loading.value = true
+  await fetchAdmins()
   await fetchProducts()
   await fetchPending()
   await fetchCollection()
@@ -254,7 +281,7 @@ onMounted (async () => {
             class="col-span-3 "
             elevation="1"
           >
-            <div class="bg-gradient-to-r from-emerald-500 to-lime-600 h-full p-1 px-3 text-white flex flex-col justify-center">
+            <div class="bg-gradient-to-r from-emerald-500 to-lime-600 h-full p-2 px-3 text-white flex flex-col justify-center">
               <span class="text-xs opacity-80">
                 Collection
               </span>
@@ -270,7 +297,7 @@ onMounted (async () => {
             :loading="shopLoading"
             elevation="1"
           >
-            <div class="bg-gradient-to-r from-rose-500 via-red-400 to-red-500 h-full p-1 px-3 text-white flex flex-col justify-center">
+            <div class="bg-gradient-to-r from-rose-500 via-red-400 to-red-500 h-full p-2 px-3 text-white flex flex-col justify-center">
               <span class="text-xs opacity-80">
                 Pending
               </span>
@@ -281,9 +308,93 @@ onMounted (async () => {
           </v-card>
         </div>
 
+        <div class="grid grid-cols-9  gap-x-2 my-3 ">
+          <v-card
+            rounded="md"
+            class="col-span-3 "
+            elevation="1"
+            :loading="purchaseLoading"
+          >
+            <div class=" opacity-80 h-full p-2 px-3 flex flex-col justify-center text-sm">
+              <span class="text-xs opacity-80">
+                Purchase
+              </span>
+              <span class="w-full text-center font-semibold text-blue-900  text-sm">
+                {{ formatAsCurrency(totalPurchase) }}
+              </span>
+            </div>
+          </v-card>
+
+          <v-card
+            rounded="md"
+            class="col-span-3 "
+            elevation="1"
+            :loading="saleLoading"
+          >
+            <div class=" opacity-80 h-full p-2 px-3 text-black flex flex-col justify-center text-sm">
+              <span class="text-xs opacity-80">
+                Cost
+              </span>
+              <span class="w-full text-center font-semibold text-red-900  text-sm">
+                {{ formatAsCurrency(totalSales.cost) }}
+              </span>
+            </div>
+          </v-card>
+
+          <v-card
+            rounded="md"
+            class="col-span-3 "
+            elevation="1"
+            :loading="saleLoading"
+          >
+            <div class=" opacity-80 h-full p-2 px-3 text-black  flex flex-col justify-center text-sm">
+              <span class="text-xs opacity-80">
+                Sale
+              </span>
+              <span class="w-full text-center font-semibold text-green-900 ">
+                {{ formatAsCurrency(totalSales.sale) }}
+              </span>
+            </div>
+          </v-card>
+        </div>
+
+        <div v-if="isAdmin" class="grid grid-cols-6 gap-4 w-full ">
+          <v-card
+            :loading="purchaseLoading || collectionLoading"
+            rounded="md"
+            class="col-span-3 "
+            elevation="1"
+          >
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-500  h-full p-2 px-3 text-white flex flex-col justify-center">
+              <span class="text-xs opacity-80">
+                Returns
+              </span>
+              <span class="w-full text-center font-semibold">
+                {{ formatAsCurrency(totalCollection - totalPurchase) }}
+              </span>
+            </div>
+          </v-card>
+
+          <v-card
+            rounded="md"
+            :loading="saleLoading"
+            class="col-span-3 "
+            elevation="1"
+          >
+            <div class="bg-gradient-to-r from-emerald-500 to-emerald-900 h-full p-2 px-3 text-white flex flex-col justify-center">
+              <span class="text-xs opacity-80">
+                Profit
+              </span>
+              <span class="w-full text-center font-semibold">
+                {{ formatAsCurrency(totalSales.sale - totalSales.cost) }}
+              </span>
+            </div>
+          </v-card>
+        </div>
+
         <div class="flex flex-col !px-0 mt-5">
           <div v-if="!mergedSaleList?.length || saleLoading" class="w-full  mb-9 !rounded-b-[10px] shadow-lg">
-            <div class="text-sm w-full flex w-full justify-between h-[52px]  ">
+            <!-- <div class="text-sm w-full flex w-full justify-between h-[52px]  ">
               <span class=" rounded-tl-[10px] text-left !bg-primary w-full text-white !font-semibold flex items-center gap-x-1.5 px-4">
                 <span class="">
                   No
@@ -310,14 +421,13 @@ onMounted (async () => {
             </div>
             <div v-else class="!h-[200px] bg-[#fff] w-full  flex  rounded-b-[10px] items-center justify-center">
               <ImagesNoData class="scale-50 " />
-            </div>
+            </div> -->
           </div>
 
           <div v-else id="table-stock" class="!h-full !shadow-md !rounded-[10px] ">
             <v-table
               fixed-header
               :loading="true"
-              :height="tableHeight > (screenHeight - 440) ? `${screenHeight - 440}px` : ''"
             >
               <thead class="text-sm ">
                 <tr class="">
@@ -373,94 +483,9 @@ onMounted (async () => {
           </div>
         </div>
       </v-container>
+      <CoreNavSpacer />
     </v-main>
 
-    <!-- BOTTOM ACTION BUTTON -->
-    <div class=" !fixed !bottom-[70px] flex  flex-col px-5 !h-150 w-full  ">
-      <div class="grid grid-cols-9  gap-x-2 mb-3 ">
-        <v-card
-          rounded="md"
-          class="col-span-3 "
-          elevation="1"
-          :loading="purchaseLoading"
-        >
-          <div class=" opacity-80 h-full p-2 px-3 flex flex-col justify-center text-sm">
-            <span class="text-xs opacity-80">
-              Purchase
-            </span>
-            <span class="w-full text-center font-semibold text-blue-900  text-sm">
-              {{ formatAsCurrency(totalPurchase) }}
-            </span>
-          </div>
-        </v-card>
-
-        <v-card
-          rounded="md"
-          class="col-span-3 "
-          elevation="1"
-          :loading="saleLoading"
-        >
-          <div class=" opacity-80 h-full p-2 px-3 text-black flex flex-col justify-center text-sm">
-            <span class="text-xs opacity-80">
-              Cost
-            </span>
-            <span class="w-full text-center font-semibold text-red-900  text-sm">
-              {{ formatAsCurrency(totalSales.cost) }}
-            </span>
-          </div>
-        </v-card>
-
-        <v-card
-          rounded="md"
-          class="col-span-3 "
-          elevation="1"
-          :loading="saleLoading"
-        >
-          <div class=" opacity-80 h-full p-2 px-3 text-black  flex flex-col justify-center text-sm">
-            <span class="text-xs opacity-80">
-              Sale
-            </span>
-            <span class="w-full text-center font-semibold text-green-900 ">
-              {{ formatAsCurrency(totalSales.sale) }}
-            </span>
-          </div>
-        </v-card>
-      </div>
-
-      <div class="grid grid-cols-6 gap-4 w-full ">
-        <v-card
-          :loading="purchaseLoading || collectionLoading"
-          rounded="md"
-          class="col-span-3 "
-          elevation="1"
-        >
-          <div class="bg-gradient-to-r from-cyan-500 to-blue-500  h-full p-1 px-3 text-white flex flex-col justify-center">
-            <span class="text-xs opacity-80">
-              Returns
-            </span>
-            <span class="w-full text-center font-semibold">
-              {{ formatAsCurrency(totalCollection - totalPurchase) }}
-            </span>
-          </div>
-        </v-card>
-
-        <v-card
-          rounded="md"
-          :loading="saleLoading"
-          class="col-span-3 "
-          elevation="1"
-        >
-          <div class="bg-gradient-to-r from-emerald-500 to-emerald-900 h-full p-1 px-3 text-white flex flex-col justify-center">
-            <span class="text-xs opacity-80">
-              Profit
-            </span>
-            <span class="w-full text-center font-semibold">
-              {{ formatAsCurrency(totalSales.sale - totalSales.cost) }}
-            </span>
-          </div>
-        </v-card>
-      </div>
-    </div>
+    <!-- POPUP -->
   </div>
-  <!-- POPUP -->
 </template>

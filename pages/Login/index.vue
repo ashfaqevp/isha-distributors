@@ -84,18 +84,18 @@ onMounted (async () => {
 
 <template>
   <v-main class="bg-gray-50 ">
-    <v-container fluid class="h-screen px-10 ">
-      <div class=" w-full mt-[100px]">
+    <v-container fluid class="  ">
+      <div class=" w-full mt-[100px] h-full min-h-[500px] ">
         <ImagesLogin class="!scale-150" />
       </div>
     </v-container>
   </v-main>
 
-  <div class="h-fit w-full !fixed !bottom-[76px]   !w-full !px-10  ">
-    <v-btn :loading="loading" size="x-large" class=" !w-full !text-sm !font-semibold !rounded-[12px] " @click="signInWithGoogle">
+  <div class="h-fit  !fixed !bottom-[96px] w-full flex flex-col items-center ">
+    <v-btn :loading="loading" size="x-large" class=" !max-w-[320px] !px-10 mx-auto   w-full !text-sm !font-semibold !rounded-[12px] " @click="signInWithGoogle">
       <div class="flex gap-5 items-center justify-between !w-full">
         <Icon name="devicon:google" size="24" />
-        <span class="mr-4">
+        <span class="mr-4 mt-2">
           {{ 'Login with Google' }}
         </span>
       </div>
