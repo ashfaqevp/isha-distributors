@@ -7,7 +7,7 @@
 <template>
   <div class="h-screen flex flex-col bg-gray-50 relative ">
     <!-- <v-main> -->
-    <div class="  h-full !mb-10 !absolute !botoom-[100px] w-full " :style="{ marginBottom: '200px' }">
+    <div class="  h-full !mb-10  w-full ">
       <slot />
     </div>
   </div>
