@@ -23,8 +23,10 @@ const paymentTypes = ref([{ name: 'Direct', value: 'direct' }, { name: 'Online',
 const saveLoading = ref(false)
 
 watch(() => props?.modelValue?.length, () => {
-  if (props?.modelValue)
+  if (props?.modelValue) {
     isOpen.value = true
+    body.value.method = { name: 'Direct', value: 'direct' }
+  }
 }, { deep: true, immediate: true })
 
 function onCancel() {
@@ -48,7 +50,7 @@ async function savePaid() {
     // create cash item
     const cashItem = { cash: (Number.parseInt(body.value?.cash, 10)), method: body.value?.method?.value }
     if (cashItem.method !== 'direct')
-      cashItem.trans_id = body.value?.trans_id
+      cashItem.trans_id = body.value?.trans_id || 'g-pay'
 
     // create shop update
     const shopUpdated = { pending: ((Number.parseInt(props.shop?.pending, 10) - Number.parseInt(body.value?.cash, 10))), last_update: today }
@@ -227,7 +229,7 @@ async function openDeleteCash(item) {
               density="comfortable"
             />
 
-            <v-text-field
+            <!-- <v-text-field
               v-if="body.method?.value === 'online'"
               v-model="body.trans_id"
               label="Transaction ID"
@@ -236,7 +238,7 @@ async function openDeleteCash(item) {
               required
               class="!h-[48px] col-span-6 "
               density="comfortable"
-            />
+            /> -->
 
             <v-btn
               color="gray"
