@@ -86,7 +86,7 @@ const priceList = computed(() => {
 
 const creditBalance = computed(() => {
   const pending = shop.value?.pending || 0
-  const creditLimit = shop.value?.credit_limit || 1000
+  const creditLimit = 100000
   return creditLimit - pending
 })
 

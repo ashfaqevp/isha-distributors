@@ -340,7 +340,7 @@ const openDeleteItem = ref(false)
 
               <div class="px-2 py-1   w-full flex flex-col items-center ">
                 <p class=" px-2 text-slate-500 py-1 text-xs">
-                  Total :
+                  Bill :
                 </p>
                 <p class="!bg-pink-00 w-fit font-semibold  text-[13px]text-center text-primary mb-2 px-2  rounded-[16px] ">
                   {{ formatAsCurrency(todayData?.total || 0) }}
@@ -349,6 +349,15 @@ const openDeleteItem = ref(false)
             </div>
 
             <div class="w-full flex h-fit   ">
+              <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
+                <p class="  px-2 text-slate-500 text-xs ">
+                  Total :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold text-[13px]text-center text-orange mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency(shop?.pending - todayData?.cash) }}
+                </p>
+              </div>
+
               <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
                 <p class="  px-2 text-slate-500 text-xs ">
                   Collection :
@@ -451,7 +460,7 @@ const openDeleteItem = ref(false)
 
               <div class="px-2 py-1   w-full flex flex-col items-center ">
                 <p class=" px-2 text-slate-500 py-1 text-xs">
-                  Total :
+                  Bill :
                 </p>
                 <p class="!bg-pink-00 w-fit font-semibold  text-[13px]text-center text-primary mb-2 px-2  rounded-[16px] ">
                   {{ formatAsCurrency(lastdayData.total || 0) }}
@@ -462,9 +471,18 @@ const openDeleteItem = ref(false)
             <div class="w-full flex h-fit   ">
               <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
                 <p class="  px-2 text-slate-500 text-xs ">
+                  Total :
+                </p>
+                <p class="!bg-pink-00 w-fit font-semibold  text-center text-orange mb-2 px-2 py-1 rounded-[16px] ">
+                  {{ formatAsCurrency(((shop.pending + ((todayData?.cash - todayData?.total) || 0)) + (lastdayData.cash - lastdayData.total) + (lastdayData.total) || 0)) }}
+                </p>
+              </div>
+
+              <div class="px-2 py-1  !border-r-[1px] w-full flex flex-col items-center ">
+                <p class="  px-2 text-slate-500 text-xs ">
                   Collection :
                 </p>
-                <p class="!bg-pink-00 w-fit font-semibold text-[13px]text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
+                <p class="!bg-pink-00 w-fit font-semibold  text-center text-green mb-2 px-2 py-1 rounded-[16px] ">
                   {{ formatAsCurrency(lastdayData?.cash || 0) }}
                 </p>
               </div>
